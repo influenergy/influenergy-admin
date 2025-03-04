@@ -28,27 +28,31 @@ export default function Login() {
     setError("");
 
     try {
-      
       const res = await api.post("/login", {
         email: formData.email,
         password: formData.password,
         userType: "admin", // Default userType
       });
-  
+
       const data = res.data; // Axios already parses JSON response
       console.log(data);
-  
+
       dispatch(
         login({
           fullName: data.data.fullName,
           email: data.data.companyEmail,
         })
       );
-  
+
       alert("Login successful!");
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message);
+      // Check if API response contains an error message
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
