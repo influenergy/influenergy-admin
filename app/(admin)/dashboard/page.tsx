@@ -65,16 +65,14 @@ export default function Dashboard() {
     fetchData();
   }, [activeTab, dispatch]);
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-full bg-gray-100">
       {/* Sidebar */}
       <Sidebar />
 
       <div className="flex flex-col flex-1">
-        {/* Header */}
         <Header />
 
         <div className="p-6">
-          {/* Table */}
           <div className="mt-6 bg-white rounded-lg p-4 shadow">
             {activeTab === "creators" && (
               <DataTable type="creators" data={creators} />

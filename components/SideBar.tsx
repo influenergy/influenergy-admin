@@ -7,6 +7,8 @@ import { setActiveTab } from "../store/slices/tabSlice";
 import { motion } from "framer-motion";
 import { logout } from "../store/slices/authSlice";
 import { api } from "../utils/apiConfig";
+
+
 const Sidebar = () => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
@@ -16,7 +18,7 @@ const Sidebar = () => {
   const activeTab = useSelector((state: any) => state.tab.activeTab);
 
   const router = useRouter()
-  // Sync URL param with Redux state
+
   useEffect(() => {
     startTransition(() => {
       dispatch(setActiveTab(currentTab as "creators" | "brands"));
