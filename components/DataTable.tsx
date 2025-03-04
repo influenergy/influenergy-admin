@@ -99,6 +99,7 @@ const DataTable = ({ type, data }: DataTableProps) => {
   interface VerifyAccountData {
     companyEmail: string;
   }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleVerifyAccount = async (
     data: VerifyAccountData
   ): Promise<void> => {
@@ -269,7 +270,7 @@ const DataTable = ({ type, data }: DataTableProps) => {
               ),
             },
           ],
-    [dropdownOpen, type]
+    [dropdownOpen, handleVerifyAccount, type]
   );
 
   const table = useReactTable({
