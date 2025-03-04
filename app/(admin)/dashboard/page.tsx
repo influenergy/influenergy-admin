@@ -35,7 +35,7 @@ export default function Dashboard() {
             email: creator.email,
             profileIcon: creator.profileIcon,
             isProfileCompleted: creator.isProfileCompleted ? "Yes" : "No",
-            isDeleted: creator.isDeleted ? "Yes" : "No",
+            isAccountDeleted: creator.isAccountDeleted ? "Yes" : "No",
             isEmailVerified: creator.isEmailVerified ? "Yes" : "No",
             profile: creator.profile,
           }));
@@ -51,8 +51,8 @@ export default function Dashboard() {
             companyName: brand.companyName,
             companyEmail: brand.companyEmail,
             companyWebsite: brand.companyWebsite,
-            isAccountDeleted: brand.isAccountDeleted,
-            isAccountVerified: brand.isAccountVerified,
+            isAccountDeleted: brand.isAccountDeleted ? "Yes" : "No",
+            isAccountVerified: brand.isAccountVerified ? "Yes" : "No",
           }));
 
           dispatch(setBrands(formattedData));

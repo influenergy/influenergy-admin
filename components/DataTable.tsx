@@ -12,8 +12,6 @@ import ProfileModal from "./ProfileModal";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { api } from "../utils/apiConfig";
 
-
-
 interface DataTableProps {
   type: "creators" | "brands";
   data: any[];
@@ -67,18 +65,59 @@ const DataTable = ({ type, data }: DataTableProps) => {
   }, [dropdownOpen]);
 
   // Handle delete action
-  const handleDelete = (id: string) => {
-    console.log(`Deleting row with ID: ${id}`);
-    // Add delete logic here (e.g., API call)
-    setDropdownOpen(null);
+  const handleDelete = async (id: string, userType: string) => {
+    try {
+      // Confirm deletion
+      const isConfirmed = window.confirm(
+        `Are you sure you want to delete this ${userType}?`
+      );
+      if (!isConfirmed) return;
+
+      console.log(`Deleting data with ID: ${id}, userType: ${userType}`);
+
+      // Call API to delete user
+      const response = await api.delete(`/admin/delete/${id}/${userType}`);
+
+      if (response.status === 200) {
+        console.log("✅ User deleted successfully");
+        alert("User deleted successfully"); // Show success alert
+        setDropdownOpen(null); // Close dropdown after successful deletion
+      } else {
+        throw new Error("Unexpected response from server");
+      }
+    } catch (error: any) {
+      console.error("❌ Error deleting user:", error);
+
+      // Show user-friendly error message
+      alert(
+        error.response?.data?.message ||
+          "Failed to delete user. Please try again."
+      );
+    }
   };
 
   interface VerifyAccountData {
     companyEmail: string;
   }
+  const handleVerifyAccount = async (
+    data: VerifyAccountData
+  ): Promise<void> => {
+    try {
+      const res = await api.get(`/brand/verify-brand/${data.companyEmail}`);
 
-  const handleVerifyAccount = async (data: VerifyAccountData): Promise<void> => {
-    const res = await api.get(`/brand/verify-brand/${data.companyEmail}`);
+      if (res.status === 200) {
+        alert("✅ Verification email sent successfully!");
+        console.log("✅ Account verification email sent:", res.data);
+      } else {
+        console.warn("⚠️ Unexpected response status:", res.status);
+      }
+    } catch (error: any) {
+      console.error(
+        "❌ Error verifying account:",
+        error.response?.data?.message || error.message
+      );
+      alert("❌ Failed to send verification email. Please try again.");
+    }
   };
 
   const columns: ColumnDef<any>[] = useMemo(
@@ -105,7 +144,7 @@ const DataTable = ({ type, data }: DataTableProps) => {
             { accessorKey: "name", header: "Name" },
             { accessorKey: "email", header: "Email" },
             { accessorKey: "isProfileCompleted", header: "Profile Completed" },
-            { accessorKey: "isDeleted", header: "Deleted" },
+            { accessorKey: "isAccountDeleted", header: "Account Deleted" },
             { accessorKey: "isEmailVerified", header: "Email Verified" },
             {
               accessorKey: "profile",
@@ -134,15 +173,24 @@ const DataTable = ({ type, data }: DataTableProps) => {
                     <BsThreeDotsVertical className="text-xl text-gray-600 hover:text-gray-800" />
                   </button>
                   {dropdownOpen === row.id && (
-                    <div
-                      className={`dropdown-menu ${row.id} absolute top-0 right-10 w-28 bg-white border rounded-lg shadow-lg z-10 overflow-hidden`}
-                    >
-                      {/* Triangle Indicator */}
-                      {/* <div className="absolute -right-2 top-3 w-4 h-4 rotate-45 bg-white border border-gray-300"></div> */}
+                    <div className="dropdown-menu absolute top-0 right-10 w-28 bg-white border rounded-lg shadow-lg z-10 overflow-hidden">
 
+                      {/* Delete Button */}
                       <button
-                        onClick={() => handleDelete(row.id)}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+                        onClick={() => {
+                          if (
+                          row.original.isAccountDeleted === "No" &&
+                            row.original.id
+                          ) {
+                            handleDelete(row.original.id, "creator");
+                          }
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 ${
+                          row.original.isAccountDeleted === "Yes"
+                            ? "cursor-not-allowed opacity-50"
+                            : "cursor-pointer"
+                        }`}
+                        disabled={row.original.isAccountDeleted === "Yes"}
                       >
                         Delete
                       </button>
@@ -165,7 +213,7 @@ const DataTable = ({ type, data }: DataTableProps) => {
               accessorKey: "isAccountVerified",
               header: "Account Verified",
               cell: ({ row }) =>
-                row.original.isAccountVerified ? (
+                row.original.isAccountVerified === "Yes" ? (
                   <span className="text-green-600 font-medium">Verified</span>
                 ) : (
                   <button
@@ -197,9 +245,22 @@ const DataTable = ({ type, data }: DataTableProps) => {
                       {/* <div className="absolute -right-2 top-3 w-4 h-4 rotate-45 bg-white border border-gray-300"></div> */}
 
                       <button
-                        onClick={() => handleDelete(row.id)}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+                         onClick={() => {
+                          if (
+                          row.original.isAccountDeleted === "No" &&
+                            row.original.id
+                          ) {
+                            handleDelete(row.original.id, "brand");
+                          }
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 ${
+                          row.original.isAccountDeleted === "Yes"
+                            ? "cursor-not-allowed opacity-50"
+                            : "cursor-pointer"
+                        }`}
+                        disabled={row.original.isAccountDeleted === 'Yes'}
                       >
+                        {/* {console.log(row.original.isAccountDeleted)} */}
                         Delete
                       </button>
                     </div>
