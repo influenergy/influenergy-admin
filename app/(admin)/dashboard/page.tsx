@@ -73,7 +73,7 @@ export default function Dashboard() {
         <Header />
 
         <div className="p-6">
-          <div className="mt-6 bg-white rounded-lg p-4 shadow">
+          <div className="bg-white rounded-lg p-4 shadow">
             {activeTab === "creators" && (
               <DataTable type="creators" data={creators} />
             )}
