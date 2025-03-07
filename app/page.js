@@ -8,7 +8,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-gray-700 p-8 sm:p-16 text-gray-200">
       {/* Main Container */}
       <div className="w-full max-w-5xl flex flex-col sm:flex-row items-center gap-12">
-        
+
         {/* Left Section - Image */}
         <motion.div
           className="flex-1 flex justify-center"
@@ -33,7 +33,7 @@ export default function Home() {
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
         >
           <h1 className="text-3xl font-bold text-white text-balance flex items-center justify-center text-center">
-            Welcome to InfuEnergy Admin Panel
+            Welcome to InfluEnergy Admin Panel
           </h1>
           <p className="text-lg text-gray-300 max-w-lg mt-4">
             Manage influencers, brand collaborations, and platform analytics seamlessly. Stay in control with an intuitive dashboard.
@@ -65,7 +65,7 @@ export default function Home() {
         transition={{ duration: 0.8, delay: 0.6 }}
       >
         <a href="/terms" className="hover:underline">Terms & Conditions</a>
-        <p className="mt-2">Copyright © 2025 InfuEnergy</p>
+        <p className="mt-2">Copyright © 2025 InfluEnergy</p>
       </motion.footer>
     </div>
   );

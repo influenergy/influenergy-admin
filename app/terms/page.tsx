@@ -16,32 +16,50 @@ export default function TermsAndConditions() {
           Terms & Conditions
         </h1>
         <p className="text-gray-300 mb-4">
-          Welcome to InfuEnergy! By accessing and using this platform, you agree to comply with the following terms and conditions.
-        </p>
-        
-        <h2 className="text-xl font-semibold text-white mt-4">1. User Responsibilities</h2>
-        <p className="text-gray-300 mb-4">
-          Users must provide accurate information and maintain the confidentiality of their login credentials. Any unauthorized use of the platform is prohibited.
+          Welcome to InfluEnergy! By accessing and using this platform, you
+          agree to comply with the following terms and conditions.
         </p>
 
-        <h2 className="text-xl font-semibold text-white mt-4">2. Platform Usage</h2>
+        <h2 className="text-xl font-semibold text-white mt-4">
+          1. User Responsibilities
+        </h2>
         <p className="text-gray-300 mb-4">
-          This platform is for managing influencer-brand collaborations. Any misuse, such as unauthorized data extraction or fraudulent activities, will result in account suspension.
+          Users must provide accurate information and maintain the
+          confidentiality of their login credentials. Any unauthorized use of
+          the platform is prohibited.
         </p>
 
-        <h2 className="text-xl font-semibold text-white mt-4">3. Privacy & Data Protection</h2>
+        <h2 className="text-xl font-semibold text-white mt-4">
+          2. Platform Usage
+        </h2>
         <p className="text-gray-300 mb-4">
-          InfuEnergy values your privacy. User data will be securely stored and will not be shared without consent. Refer to our Privacy Policy for more details.
+          This platform is for managing influencer-brand collaborations. Any
+          misuse, such as unauthorized data extraction or fraudulent activities,
+          will result in account suspension.
         </p>
 
-        <h2 className="text-xl font-semibold text-white mt-4">4. Changes to Terms</h2>
+        <h2 className="text-xl font-semibold text-white mt-4">
+          3. Privacy & Data Protection
+        </h2>
         <p className="text-gray-300 mb-4">
-          InfuEnergy reserves the right to modify these terms at any time. Continued use of the platform after changes signifies acceptance of the updated terms.
+          InfluEnergy values your privacy. User data will be securely stored and
+          will not be shared without consent. Refer to our Privacy Policy for
+          more details.
+        </p>
+
+        <h2 className="text-xl font-semibold text-white mt-4">
+          4. Changes to Terms
+        </h2>
+        <p className="text-gray-300 mb-4">
+          InfluEnergy reserves the right to modify these terms at any time.
+          Continued use of the platform after changes signifies acceptance of
+          the updated terms.
         </p>
 
         <h2 className="text-xl font-semibold text-white mt-4">5. Contact Us</h2>
         <p className="text-gray-300 mb-4">
-          If you have any questions regarding these terms, please contact our support team.
+          If you have any questions regarding these terms, please contact our
+          support team.
         </p>
 
         <div className="text-center mt-6">
