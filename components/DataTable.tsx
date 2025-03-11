@@ -11,34 +11,45 @@ import Image from "next/image";
 import ProfileModal from "./ProfileModal";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { api } from "../utils/apiConfig";
-
+import VideoModal from "./videosModal";
 interface DataTableProps {
   type: "creators" | "brands";
   data: any[];
+  onStatusChange?: () => void;
 }
 
-const DataTable = ({ type, data }: DataTableProps) => {
+const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
   const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
+  const [selectedVideos, setSelectedVideos] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 10;
 
-
   const totalPages = Math.ceil(data.length / pageSize);
-  
+
   const paginatedData = useMemo(() => {
     return data.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
   }, [data, pageIndex]);
-
 
   const openModal = (profile: any) => {
     setSelectedProfile(profile);
     setIsModalOpen(true);
   };
+  const openSocialVideoModal = (profile: any) => {
+    setSelectedProfile(profile);
+    setSelectedVideos(profile.socialVideos);
+    setIsVideoModalOpen(true);
+  };
   const closeModal = () => {
     setIsModalOpen(false);
+    setSelectedProfile(null);
+  };
+  const closeVideoModal = () => {
+    setIsVideoModalOpen(false);
+    setSelectedVideos(null);
     setSelectedProfile(null);
   };
 
@@ -145,31 +156,99 @@ const DataTable = ({ type, data }: DataTableProps) => {
                       src={row.original.profileIcon}
                       width={50}
                       height={50}
-                      alt="Brand Logo"
-                      className="w-12 h-12 rounded-full object-cover shadow-md cursor-pointer"
+                      alt="Profile"
+                      className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-md cursor-pointer"
                       onClick={() => openImageModal(row.original.profileIcon)}
                     />
                   </div>
                 ) : null,
             },
-            { accessorKey: "name", header: "Name" },
-            { accessorKey: "email", header: "Email" },
-            { accessorKey: "isProfileCompleted", header: "Profile Completed" },
-            { accessorKey: "isAccountDeleted", header: "Account Deleted" },
-            { accessorKey: "isEmailVerified", header: "Email Verified" },
             {
-              accessorKey: "profile",
-              header: "Profile Data",
-              cell: ({ row }) =>
-                row.original.profile && (
-                  <button
-                    onClick={() => openModal(row.original.profile)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-200 ease-in-out hover:bg-blue-700 active:scale-95 focus:ring focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    aria-label="View Profile Details"
-                  >
-                    View Profile
-                  </button>
-                ),
+              accessorKey: "name",
+              header: "Name",
+              cell: ({ row }) => (
+                <div className="font-medium">{row.original.name}</div>
+              ),
+            },
+            {
+              accessorKey: "email",
+              header: "Email",
+              cell: ({ row }) => (
+                <div className="text-sm md:text-base truncate max-w-[150px] md:max-w-[200px]">
+                  {row.original.email}
+                </div>
+              ),
+            },
+            {
+              accessorKey: "isProfileCompleted",
+              header: "Profile",
+              cell: ({ row }) => (
+                <span
+                  className={`px-2 py-1 rounded-full text-xs md:text-sm ${
+                    row.original.isProfileCompleted === "Yes"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {row.original.isProfileCompleted}
+                </span>
+              ),
+            },
+            {
+              accessorKey: "isAccountDeleted",
+              header: "Status",
+              cell: ({ row }) => (
+                <span
+                  className={`px-2 py-1 rounded-full text-xs md:text-sm ${
+                    row.original.isAccountDeleted === "No"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {row.original.isAccountDeleted === "No"
+                    ? "Active"
+                    : "Deleted"}
+                </span>
+              ),
+            },
+            {
+              accessorKey: "isEmailVerified",
+              header: "Verified",
+              cell: ({ row }) => (
+                <span
+                  className={`px-2 py-1 rounded-full text-xs md:text-sm ${
+                    row.original.isEmailVerified === "Yes"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {row.original.isEmailVerified}
+                </span>
+              ),
+            },
+            {
+              accessorKey: "actions",
+              header: "Actions",
+              cell: ({ row }) => (
+                <div className="flex flex-col md:flex-row gap-2 justify-center items-center">
+                  {row.original.profile && (
+                    <button
+                      onClick={() => openModal(row.original.profile)}
+                      className="bg-blue-600 text-white px-3 py-1.5 text-xs md:text-sm rounded-lg transition-all duration-200 hover:bg-blue-700 active:scale-95 focus:ring focus:ring-blue-300 w-full md:w-auto"
+                    >
+                      Profile
+                    </button>
+                  )}
+                  {row.original.profile?.socialVideos?.length > 0 && (
+                    <button
+                      onClick={() => openSocialVideoModal(row.original.profile)}
+                      className="bg-purple-600 text-white px-3 py-1.5 text-xs md:text-sm rounded-lg transition-all duration-200 hover:bg-purple-700 active:scale-95 focus:ring focus:ring-purple-300 w-full md:w-auto"
+                    >
+                      Videos
+                    </button>
+                  )}
+                </div>
+              ),
             },
             {
               id: "action",
@@ -283,75 +362,97 @@ const DataTable = ({ type, data }: DataTableProps) => {
   );
 
   const table = useReactTable({
-    data:paginatedData,
+    data: paginatedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
-    <>
-      <table className="w-full border-collapse border border-gray-300  overflow-scroll">
-        <thead className="bg-gray-200">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id} className="border p-3">
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="border">
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="border p-3 text-center">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="flex justify-between items-center p-4">
+    <div className="w-full overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-300 min-w-[750px]">
+          <thead className="bg-gray-200">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id} className="border p-3">
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="border">
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="border p-3 text-center">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center p-4 flex-wrap gap-2">
         <button
           onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
           disabled={pageIndex === 0}
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 cursor-pointer"
+          className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50 cursor-pointer transition-colors"
         >
           Previous
         </button>
-        <span>
+        <span className="text-sm text-gray-600">
           Page {pageIndex + 1} of {totalPages}
         </span>
         <button
-          onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages - 1))}
+          onClick={() =>
+            setPageIndex((prev) => Math.min(prev + 1, totalPages - 1))
+          }
           disabled={pageIndex === totalPages - 1}
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 cursor-pointer"
+          className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50 cursor-pointer transition-colors"
         >
           Next
         </button>
       </div>
-      {/* Modal for Profile Data */}
-      <ProfileModal
-        profile={selectedProfile}
-        isOpen={isModalOpen}
-        onClose={closeModal}
-      />
 
-      {/* Image Modal for Enlarged Profile Picture */}
+      {/* Modals */}
+      {selectedProfile && (
+        <>
+          <ProfileModal
+            profile={selectedProfile}
+            isOpen={isModalOpen}
+            onClose={closeModal}
+          />
+          <VideoModal
+            videos={selectedVideos || []}
+            isOpen={isVideoModalOpen}
+            onClose={closeVideoModal}
+            profileId={selectedProfile.creator}
+            onStatusUpdate={() => {
+              // Implement refresh logic here if needed
+              onStatusChange();
+              closeVideoModal();
+            }}
+          />
+        </>
+      )}
+
+      {/* Image Modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-50"
+          className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50"
           onClick={closeImageModal}
         >
-          <div className="relative p-2 rounded-lg">
+          <div className="relative bg-white p-2 rounded-lg max-w-[90vw] max-h-[90vh]">
             <button
-              className="absolute top-[-2] right-0 text-gray-600 hover:text-gray-900 text-xl cursor-pointer leading-none"
+              className="absolute -top-2 -right-2 bg-white rounded-full w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 shadow-md"
               onClick={closeImageModal}
             >
               ✖
@@ -361,12 +462,12 @@ const DataTable = ({ type, data }: DataTableProps) => {
               width={300}
               height={300}
               alt="Enlarged Profile"
-              className="rounded-lg object-cover max-w-full max-h-[80vh] mx-auto"
+              className="rounded-lg object-cover max-w-full max-h-[80vh]"
             />
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

@@ -10,6 +10,8 @@ interface ProfileModalProps {
 }
 
 const ProfileModal = ({ profile, isOpen, onClose }: ProfileModalProps) => {
+  
+  console.log(profile, "Profile Data");
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
