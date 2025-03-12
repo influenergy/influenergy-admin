@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import Sidebar from "../../../components/SideBar";
 import Header from "../../../components/Header";
 import DataTable from "../../../components/DataTable";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../store/store";
-import { setActiveTab } from "../../../store/slices/tabSlice";
 import { setCreators } from "../../../store/slices/creatorSlice";
 import { setBrands } from "../../../store/slices/brandSlice";
 import { api } from "../../../utils/apiConfig";
@@ -20,13 +19,8 @@ export default function Dashboard() {
   const brands = useSelector((state: RootState) => state.brands.list);
   const router = useRouter();
 
-  const handleStatusChange = () => {
-    if (activeTab === "creators") {
-      fetchCreatorsData();
-    }
-  };
-  
-  const fetchCreatorsData = async () => {
+  // Fetch creators data
+  const fetchCreatorsData = useCallback(async () => {
     try {
       const res = await api.get("/admin/get-creators");
       const formattedData = res.data.data?.map((creator: any) => ({
@@ -40,37 +34,44 @@ export default function Dashboard() {
         profile: creator.profile,
         videos: creator.socialVideos,
       }));
-  
+
       dispatch(setCreators(formattedData));
     } catch (err) {
       console.error("Error fetching creators:", err);
     }
-  };
+  }, [dispatch]);
 
-  
+  // Fetch brands data
+  const fetchBrandsData = useCallback(async () => {
+    try {
+      const res = await api.get("/admin/get-brands");
+      const formattedData = res.data.data?.map((brand: any) => ({
+        id: brand._id,
+        name: brand.fullName,
+        companyName: brand.companyName,
+        companyEmail: brand.companyEmail,
+        companyWebsite: brand.companyWebsite,
+        isAccountDeleted: brand.isAccountDeleted ? "Yes" : "No",
+        isAccountVerified: brand.isAccountVerified ? "Yes" : "No",
+      }));
+
+      dispatch(setBrands(formattedData));
+    } catch (err) {
+      console.error("Error fetching brands:", err);
+    }
+  }, [dispatch]);
+
+  // Fetch data based on the active tab
   useEffect(() => {
     const fetchData = async () => {
       try {
-        let res: { data: { data: any[] } }, formattedData: any[];
-
         if (activeTab === "creators") {
           await fetchCreatorsData();
         } else if (activeTab === "brands") {
-          res = await api.get("/admin/get-brands");
-          formattedData = res.data.data?.map((brand: any) => ({
-            id: brand._id,
-            name: brand.fullName,
-            companyName: brand.companyName,
-            companyEmail: brand.companyEmail,
-            companyWebsite: brand.companyWebsite,
-            isAccountDeleted: brand.isAccountDeleted ? "Yes" : "No",
-            isAccountVerified: brand.isAccountVerified ? "Yes" : "No",
-          }));
-
-          dispatch(setBrands(formattedData));
+          await fetchBrandsData();
         }
       } catch (err) {
-        if (err.status === 403) {
+        if (err.response?.status === 403) {
           await api.post("/logout");
           dispatch(logout());
           router.push("/login");
@@ -80,7 +81,7 @@ export default function Dashboard() {
     };
 
     fetchData();
-  }, [activeTab, dispatch, router]);
+  }, [activeTab, fetchCreatorsData, fetchBrandsData, dispatch, router]);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -89,7 +90,7 @@ export default function Dashboard() {
         <Sidebar />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-h-screen ">
+        <div className="flex-1 flex flex-col min-h-screen">
           {/* Header */}
           <Header />
 
@@ -97,7 +98,6 @@ export default function Dashboard() {
           <main className="flex-1 p-4 md:p-6 lg:p-8 transition-all duration-200">
             {/* Content Container */}
             <div className="max-w-[2000px] mx-auto">
-
               {/* Data Table */}
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="p-4 md:p-6">
@@ -106,10 +106,10 @@ export default function Dashboard() {
                   </h2>
                   <div className="overflow-x-auto">
                     {activeTab === "creators" && (
-                      <DataTable type="creators" data={creators} onStatusChange={handleStatusChange} />
+                      <DataTable type="creators" data={creators} fetchCreatorsData={fetchCreatorsData}  />
                     )}
                     {activeTab === "brands" && (
-                      <DataTable type="brands" data={brands} />
+                      <DataTable type="brands" data={brands} fetchBrandsData={fetchBrandsData}/>
                     )}
                   </div>
                 </div>

@@ -11,7 +11,6 @@ interface ProfileModalProps {
 
 const ProfileModal = ({ profile, isOpen, onClose }: ProfileModalProps) => {
   
-  console.log(profile, "Profile Data");
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -37,7 +36,7 @@ const ProfileModal = ({ profile, isOpen, onClose }: ProfileModalProps) => {
               <h2 className="text-xl font-semibold text-gray-800">Profile Details</h2>
               <button
                 onClick={onClose}
-                className="text-gray-500 hover:text-gray-700 transition"
+                className="text-gray-500 hover:text-gray-700 transition cursor-pointer"
               >
                 ✖
               </button>

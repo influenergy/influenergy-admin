@@ -12,13 +12,20 @@ import ProfileModal from "./ProfileModal";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { api } from "../utils/apiConfig";
 import VideoModal from "./videosModal";
+
 interface DataTableProps {
   type: "creators" | "brands";
   data: any[];
-  onStatusChange?: () => void;
+  fetchCreatorsData?: () => void;
+  fetchBrandsData?: () => void;
 }
 
-const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
+const DataTable = ({
+  type,
+  data,
+  fetchCreatorsData,
+  fetchBrandsData,
+}: DataTableProps) => {
   const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
   const [selectedVideos, setSelectedVideos] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,20 +60,19 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
     setSelectedProfile(null);
   };
 
-  // Open Image Modal
   const openImageModal = (imageUrl: string) => {
+    console.log(imageUrl, "Image URL");
     setSelectedImage(imageUrl);
   };
-  // Close Image Modal
+
   const closeImageModal = () => {
     setSelectedImage(null);
   };
-  // Toggle dropdown for the action menu
+
   const toggleDropdown = (rowId: string) => {
     setDropdownOpen((prev) => (prev === rowId ? null : rowId));
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -85,7 +91,7 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
     };
   }, [dropdownOpen]);
 
-  // Handle delete action
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleDelete = async (id: string, userType: string) => {
     try {
       // Confirm deletion
@@ -94,13 +100,11 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
       );
       if (!isConfirmed) return;
 
-      console.log(`Deleting data with ID: ${id}, userType: ${userType}`);
-
-      // Call API to delete user
       const response = await api.delete(`/admin/delete/${id}/${userType}`);
 
       if (response.status === 200) {
         console.log("✅ User deleted successfully");
+        userType === "creator" ? fetchCreatorsData() : fetchBrandsData();
         alert("User deleted successfully"); // Show success alert
         setDropdownOpen(null); // Close dropdown after successful deletion
       } else {
@@ -128,17 +132,20 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
       const res = await api.get(`/brand/verify-brand/${data.companyEmail}`);
 
       if (res.status === 200) {
-        alert("✅ Verification email sent successfully!");
+        alert(res.data.message || "✅ Verification email sent successfully!");
         console.log("✅ Account verification email sent:", res.data);
       } else {
+        alert(res.data.message || "⚠️ Unexpected response");
         console.warn("⚠️ Unexpected response status:", res.status);
       }
     } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to send verification email";
+      alert(`❌ ${errorMessage}`);
       console.error(
         "❌ Error verifying account:",
-        error.response?.data?.message || error.message
+        error.response?.data?.message
       );
-      alert("❌ Failed to send verification email. Please try again.");
     }
   };
 
@@ -158,7 +165,10 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
                       height={50}
                       alt="Profile"
                       className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-md cursor-pointer"
-                      onClick={() => openImageModal(row.original.profileIcon)}
+                      onClick={() => {
+                        console.log("clicked");
+                        openImageModal(row.original.profileIcon);
+                      }}
                     />
                   </div>
                 ) : null,
@@ -234,7 +244,7 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
                   {row.original.profile && (
                     <button
                       onClick={() => openModal(row.original.profile)}
-                      className="bg-blue-600 text-white px-3 py-1.5 text-xs md:text-sm rounded-lg transition-all duration-200 hover:bg-blue-700 active:scale-95 focus:ring focus:ring-blue-300 w-full md:w-auto"
+                      className="bg-blue-600 text-white px-3 py-1.5 text-xs md:text-sm rounded-lg transition-all duration-200 hover:bg-blue-700 active:scale-95 focus:ring cursor-pointer focus:ring-blue-300 w-full md:w-auto"
                     >
                       Profile
                     </button>
@@ -242,7 +252,7 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
                   {row.original.profile?.socialVideos?.length > 0 && (
                     <button
                       onClick={() => openSocialVideoModal(row.original.profile)}
-                      className="bg-purple-600 text-white px-3 py-1.5 text-xs md:text-sm rounded-lg transition-all duration-200 hover:bg-purple-700 active:scale-95 focus:ring focus:ring-purple-300 w-full md:w-auto"
+                      className="bg-purple-600 text-white px-3 py-1.5 text-xs md:text-sm rounded-lg transition-all duration-200 hover:bg-purple-700 active:scale-95 focus:ring focus:ring-purple-300 w-full md:w-auto cursor-pointer"
                     >
                       Videos
                     </button>
@@ -340,6 +350,7 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
                             row.original.id
                           ) {
                             handleDelete(row.original.id, "brand");
+                            // fetchBrandsData();
                           }
                         }}
                         className={`w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 ${
@@ -358,7 +369,7 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
               ),
             },
           ],
-    [dropdownOpen, handleVerifyAccount, type]
+    [dropdownOpen, handleDelete, handleVerifyAccount, type]
   );
 
   const table = useReactTable({
@@ -424,24 +435,23 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
 
       {/* Modals */}
       {selectedProfile && (
-        <>
-          <ProfileModal
-            profile={selectedProfile}
-            isOpen={isModalOpen}
-            onClose={closeModal}
-          />
-          <VideoModal
-            videos={selectedVideos || []}
-            isOpen={isVideoModalOpen}
-            onClose={closeVideoModal}
-            profileId={selectedProfile.creator}
-            onStatusUpdate={() => {
-              // Implement refresh logic here if needed
-              onStatusChange();
-              closeVideoModal();
-            }}
-          />
-        </>
+        <ProfileModal
+          profile={selectedProfile}
+          isOpen={isModalOpen}
+          onClose={closeModal}
+        />
+      )}
+      {selectedVideos && (
+        <VideoModal
+          videos={selectedVideos || []}
+          isOpen={isVideoModalOpen}
+          onClose={closeVideoModal}
+          profileId={selectedProfile.creator}
+          onStatusUpdate={() => {
+            fetchCreatorsData();
+            closeVideoModal();
+          }}
+        />
       )}
 
       {/* Image Modal */}
@@ -452,7 +462,7 @@ const DataTable = ({ type, data, onStatusChange }: DataTableProps) => {
         >
           <div className="relative bg-white p-2 rounded-lg max-w-[90vw] max-h-[90vh]">
             <button
-              className="absolute -top-2 -right-2 bg-white rounded-full w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 shadow-md"
+              className="absolute -top-2 -right-2 bg-white rounded-full cursor-pointer w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 shadow-md"
               onClick={closeImageModal}
             >
               ✖
