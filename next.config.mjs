@@ -23,6 +23,11 @@ const nextConfig = {
         hostname: "www.instagram.com",
         protocol: "https",
         pathname: "**",
+      },
+      {
+        hostname: "influenergybucket.s3.us-west-1.amazonaws.com",
+        protocol: "https",
+        pathname: "**",
       }
     ],
   },

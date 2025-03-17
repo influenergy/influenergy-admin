@@ -95,16 +95,16 @@ export default function Dashboard() {
           <Header />
 
           {/* Content Area */}
-          <main className="flex-1 p-4 md:p-6 lg:p-8 transition-all duration-200">
+          <main className="flex-1 px-4 md:px-6 lg:px-8 py-3 transition-all duration-200">
             {/* Content Container */}
             <div className="max-w-[2000px] mx-auto">
               {/* Data Table */}
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="p-4 md:p-6">
+                <div className="px-4 md:px-6 py-2">
                   <h2 className="text-xl md:text-2xl font-bold mb-4">
                     {activeTab === "creators" ? "Creators List" : "Brands List"}
                   </h2>
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto overflow-y-hidden">
                     {activeTab === "creators" && (
                       <DataTable type="creators" data={creators} fetchCreatorsData={fetchCreatorsData}  />
                     )}

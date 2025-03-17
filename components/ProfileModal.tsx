@@ -65,28 +65,28 @@ const ProfileModal = ({ profile, isOpen, onClose }: ProfileModalProps) => {
               <h3 className="text-lg font-semibold text-gray-800">Social Links</h3>
               <div className="space-y-2">
                 <p>
-                  <span className="font-semibold">{profile.socialLinks.primary.platform}:</span> 
+                  <span className="font-semibold">{profile.socialLinks?.primary?.platform}:</span> 
                   <a
-                    href={profile.socialLinks.primary.link}
+                    href={profile.socialLinks?.primary?.link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline ml-1"
                   >
-                    {profile.socialLinks.primary.link}
+                    {profile.socialLinks?.primary?.link}
                   </a> 
-                  ({profile.socialLinks.primary.followers} followers)
+                  ({profile.socialLinks?.primary?.followers} followers)
                 </p>
                 <p>
-                  <span className="font-semibold">{profile.socialLinks.secondary.platform}:</span> 
+                  <span className="font-semibold">{profile.socialLinks?.secondary?.platform}:</span> 
                   <a
-                    href={profile.socialLinks.secondary.link}
+                    href={profile.socialLinks?.secondary?.link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:underline ml-1"
                   >
-                    {profile.socialLinks.secondary.link}
+                    {profile.socialLinks?.secondary?.link}
                   </a> 
-                  ({profile.socialLinks.secondary.followers} followers)
+                  ({profile.socialLinks?.secondary?.followers} followers)
                 </p>
               </div>
             </div>
