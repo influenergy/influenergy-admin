@@ -61,7 +61,6 @@ const DataTable = ({
   };
 
   const openImageModal = (imageUrl: string) => {
-    console.log(imageUrl, "Image URL");
     setSelectedImage(imageUrl);
   };
 
@@ -149,13 +148,28 @@ const DataTable = ({
     }
   };
 
+  
+  const handleVerifyAccountCreator = async (id:string) => {
+    try {
+      // Call the API to verify the account
+      await api.put(`/creator/verify-account/${id}`);
+      
+      // Optionally, trigger a re-fetch of data or update the row state
+      alert("Account verified successfully!");
+      fetchCreatorsData();
+    } catch (error) {
+      console.error("Verification failed:", error);
+      alert("Failed to verify account.");
+    }
+  };
+
   const columns: ColumnDef<any>[] = useMemo(
     () =>
       type === "creators"
         ? [
             {
               accessorKey: "profileIcon",
-              header: "Profile",
+              header: "Profile Photo",
               cell: ({ row }) =>
                 row.original.profileIcon ? (
                   <div className="flex justify-center">
@@ -166,7 +180,6 @@ const DataTable = ({
                       alt="Profile"
                       className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-md cursor-pointer"
                       onClick={() => {
-                        console.log("clicked");
                         openImageModal(row.original.profileIcon);
                       }}
                     />
@@ -190,19 +203,33 @@ const DataTable = ({
               ),
             },
             {
-              accessorKey: "isProfileCompleted",
-              header: "Profile",
-              cell: ({ row }) => (
-                <span
-                  className={`px-2 py-1 rounded-full text-xs md:text-sm ${
-                    row.original.isProfileCompleted === "Yes"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
-                >
-                  {row.original.isProfileCompleted}
-                </span>
-              ),
+              accessorKey: "isAccountVerified",
+              header: "Account Verified",
+              cell: ({ row }) => {
+                const isVerified = row.original.isAccountVerified === "Yes";
+            
+            
+                return (
+                  <div className="flex items-center space-x-2 justify-center">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        isVerified ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {isVerified ? "Verified" : "Unverified"}
+                    </span>
+            
+                    {!isVerified && (
+                      <button
+                        onClick={() => handleVerifyAccountCreator(row.original.id)}
+                        className="cursor-pointer px-2 py-1 text-xs md:text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                      >
+                        Verify
+                      </button>
+                    )}
+                  </div>
+                );
+              },
             },
             {
               accessorKey: "isAccountDeleted",
@@ -223,7 +250,7 @@ const DataTable = ({
             },
             {
               accessorKey: "isEmailVerified",
-              header: "Verified",
+              header: "Email Verified",
               cell: ({ row }) => (
                 <span
                   className={`px-2 py-1 rounded-full text-xs md:text-sm ${
@@ -360,7 +387,7 @@ const DataTable = ({
                         }`}
                         disabled={row.original.isAccountDeleted === "Yes"}
                       >
-                        {/* {console.log(row.original.isAccountDeleted)} */}
+                       
                         Delete
                       </button>
                     </div>

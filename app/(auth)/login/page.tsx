@@ -35,7 +35,6 @@ export default function Login() {
       });
 
       const data = res.data; // Axios already parses JSON response
-      console.log(data);
 
       dispatch(
         login({

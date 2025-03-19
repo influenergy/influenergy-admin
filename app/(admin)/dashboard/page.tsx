@@ -31,6 +31,7 @@ export default function Dashboard() {
         isProfileCompleted: creator.isProfileCompleted ? "Yes" : "No",
         isAccountDeleted: creator.isAccountDeleted ? "Yes" : "No",
         isEmailVerified: creator.isEmailVerified ? "Yes" : "No",
+        isAccountVerified: creator.isAccountVerified ? "Yes" : "No",
         profile: creator.profile,
         videos: creator.socialVideos,
       }));
@@ -90,7 +91,7 @@ export default function Dashboard() {
         <Sidebar />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-h-screen">
+        <div className="flex-1 flex flex-col min-h-screen overflow-y-auto">
           {/* Header */}
           <Header />
 

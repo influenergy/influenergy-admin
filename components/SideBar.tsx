@@ -104,7 +104,7 @@ const Sidebar = () => {
   );
 
   return (
-    <div className="">
+    <div className="z-50">
       {/* Mobile Menu Toggle Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
