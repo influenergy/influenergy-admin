@@ -29,11 +29,10 @@ export default function Dashboard() {
         email: creator.email,
         profileIcon: creator.profileIcon,
         isProfileCompleted: creator.isProfileCompleted ? "Yes" : "No",
-        isAccountDeleted: creator.isAccountDeleted ? "Yes" : "No",
         isEmailVerified: creator.isEmailVerified ? "Yes" : "No",
         isAccountVerified: creator.isAccountVerified ? "Yes" : "No",
+        requestToDeleteAccount: creator.requestToDeleteAccount ? "Yes" : "No",
         profile: creator.profile,
-        videos: creator.socialVideos,
       }));
 
       dispatch(setCreators(formattedData));
@@ -52,8 +51,10 @@ export default function Dashboard() {
         companyName: brand.companyName,
         companyEmail: brand.companyEmail,
         companyWebsite: brand.companyWebsite,
-        isAccountDeleted: brand.isAccountDeleted ? "Yes" : "No",
         isAccountVerified: brand.isAccountVerified ? "Yes" : "No",
+        requestToDeleteAccount: brand.requestToDeleteAccount ? "Yes" : "No",
+        profileIcon:brand.profileIcon
+
       }));
 
       dispatch(setBrands(formattedData));

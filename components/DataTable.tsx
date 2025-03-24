@@ -148,12 +148,12 @@ const DataTable = ({
     }
   };
 
-  
-  const handleVerifyAccountCreator = async (id:string) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleVerifyAccountCreator = async (id: string) => {
     try {
       // Call the API to verify the account
       await api.put(`/creator/verify-account/${id}`);
-      
+
       // Optionally, trigger a re-fetch of data or update the row state
       alert("Account verified successfully!");
       fetchCreatorsData();
@@ -207,21 +207,24 @@ const DataTable = ({
               header: "Account Verified",
               cell: ({ row }) => {
                 const isVerified = row.original.isAccountVerified === "Yes";
-            
-            
+
                 return (
                   <div className="flex items-center space-x-2 justify-center">
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${
-                        isVerified ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                        isVerified
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
                       }`}
                     >
                       {isVerified ? "Verified" : "Unverified"}
                     </span>
-            
+
                     {!isVerified && (
                       <button
-                        onClick={() => handleVerifyAccountCreator(row.original.id)}
+                        onClick={() =>
+                          handleVerifyAccountCreator(row.original.id)
+                        }
                         className="cursor-pointer px-2 py-1 text-xs md:text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
                       >
                         Verify
@@ -231,23 +234,7 @@ const DataTable = ({
                 );
               },
             },
-            {
-              accessorKey: "isAccountDeleted",
-              header: "Status",
-              cell: ({ row }) => (
-                <span
-                  className={`px-2 py-1 rounded-full text-xs md:text-sm ${
-                    row.original.isAccountDeleted === "No"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {row.original.isAccountDeleted === "No"
-                    ? "Active"
-                    : "Deleted"}
-                </span>
-              ),
-            },
+
             {
               accessorKey: "isEmailVerified",
               header: "Email Verified",
@@ -264,7 +251,7 @@ const DataTable = ({
               ),
             },
             {
-              accessorKey: "actions",
+              accessorKey: "actions1",
               header: "Actions",
               cell: ({ row }) => (
                 <div className="flex flex-col md:flex-row gap-2 justify-center items-center">
@@ -288,7 +275,22 @@ const DataTable = ({
               ),
             },
             {
-              id: "action",
+              accessorKey: "actions3",
+              header: "Requested to Delete Account",
+              cell: ({ row }) => (
+                <span
+                  className={`px-2 py-1 rounded-full text-xs md:text-sm ${
+                    row.original.requestToDeleteAccount === "Yes"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {row.original.requestToDeleteAccount}
+                </span>
+              ),
+            },
+            {
+              id: "action1",
               header: "",
               cell: ({ row }) => (
                 <div className="relative flex justify-center">
@@ -304,19 +306,21 @@ const DataTable = ({
                       {/* Delete Button */}
                       <button
                         onClick={() => {
+                        
                           if (
-                            row.original.isAccountDeleted === "No" &&
+                            row.original.requestToDeleteAccount === "Yes" &&
                             row.original.id
                           ) {
+                            console.log("clicked");
                             handleDelete(row.original.id, "creator");
                           }
                         }}
                         className={`w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 ${
-                          row.original.isAccountDeleted === "Yes"
+                          row.original.requestToDeleteAccount === "No"
                             ? "cursor-not-allowed opacity-50"
                             : "cursor-pointer"
                         }`}
-                        disabled={row.original.isAccountDeleted === "Yes"}
+                        disabled={row.original.requestToDeleteAccount === "No"}
                       >
                         Delete
                       </button>
@@ -350,9 +354,23 @@ const DataTable = ({
                   </button>
                 ),
             },
-            { accessorKey: "isAccountDeleted", header: "Account Deleted" },
             {
-              id: "action",
+              accessorKey: "actions4",
+              header: "Requested to Delete Account",
+              cell: ({ row }) => (
+                <span
+                  className={`px-2 py-1 rounded-full text-xs md:text-sm ${
+                    row.original.requestToDeleteAccount === "Yes"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {row.original.requestToDeleteAccount}
+                </span>
+              ),
+            },
+            {
+              id: "action2",
               header: "",
               cell: ({ row }) => (
                 <div className="relative flex justify-center">
@@ -373,21 +391,19 @@ const DataTable = ({
                       <button
                         onClick={() => {
                           if (
-                            row.original.isAccountDeleted === "No" &&
+                            row.original.requestToDeleteAccount === "Yes" &&
                             row.original.id
                           ) {
                             handleDelete(row.original.id, "brand");
-                            // fetchBrandsData();
                           }
                         }}
                         className={`w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 ${
-                          row.original.isAccountDeleted === "Yes"
+                          row.original.requestToDeleteAccount === "No"
                             ? "cursor-not-allowed opacity-50"
                             : "cursor-pointer"
                         }`}
-                        disabled={row.original.isAccountDeleted === "Yes"}
+                        disabled={row.original.requestToDeleteAccount === "No"}
                       >
-                       
                         Delete
                       </button>
                     </div>
@@ -396,7 +412,13 @@ const DataTable = ({
               ),
             },
           ],
-    [dropdownOpen, handleDelete, handleVerifyAccount, type]
+    [
+      dropdownOpen,
+      handleDelete,
+      handleVerifyAccount,
+      handleVerifyAccountCreator,
+      type,
+    ]
   );
 
   const table = useReactTable({
