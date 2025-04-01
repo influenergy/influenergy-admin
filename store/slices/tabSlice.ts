@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface TabState {
-  activeTab: "creators" | "brands";
+  activeTab: "creators" | "brands" | "collaborations";
 }
 
 const initialState: TabState = {
@@ -12,7 +12,7 @@ const tabSlice = createSlice({
   name: "tab",
   initialState,
   reducers: {
-    setActiveTab: (state, action: PayloadAction<"creators" | "brands">) => {
+    setActiveTab: (state, action: PayloadAction<"creators" | "brands" | "collaborations">) => {
       state.activeTab = action.payload;
     },
   },

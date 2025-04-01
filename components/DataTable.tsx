@@ -14,10 +14,11 @@ import { api } from "../utils/apiConfig";
 import VideoModal from "./videosModal";
 
 interface DataTableProps {
-  type: "creators" | "brands";
+  type: "creators" | "brands" | "collaborations";
   data: any[];
   fetchCreatorsData?: () => void;
   fetchBrandsData?: () => void;
+  fetchCollaborationsData?: () => void;
 }
 
 const DataTable = ({
@@ -25,6 +26,7 @@ const DataTable = ({
   data,
   fetchCreatorsData,
   fetchBrandsData,
+  fetchCollaborationsData
 }: DataTableProps) => {
   const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
   const [selectedVideos, setSelectedVideos] = useState<any | null>(null);
@@ -34,7 +36,7 @@ const DataTable = ({
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 10;
-
+  console.log(data,'data')
   const totalPages = Math.ceil(data.length / pageSize);
 
   const paginatedData = useMemo(() => {

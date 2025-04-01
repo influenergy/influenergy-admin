@@ -8,6 +8,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../store/store";
 import { setCreators } from "../../../store/slices/creatorSlice";
 import { setBrands } from "../../../store/slices/brandSlice";
+import { setCollaborations } from "../../../store/slices/collaborationSlice"; // Import setCollaborations action
 import { api } from "../../../utils/apiConfig";
 import { logout } from "../../../store/slices/authSlice";
 import { useRouter } from "next/navigation";
@@ -17,6 +18,9 @@ export default function Dashboard() {
   const activeTab = useSelector((state: RootState) => state.tab.activeTab);
   const creators = useSelector((state: RootState) => state.creators.list);
   const brands = useSelector((state: RootState) => state.brands.list);
+  const collaborations = useSelector(
+    (state: RootState) => state.collab.list // Add collaborations to Redux state
+  );
   const router = useRouter();
 
   // Fetch creators data
@@ -53,13 +57,36 @@ export default function Dashboard() {
         companyWebsite: brand.companyWebsite,
         isAccountVerified: brand.isAccountVerified ? "Yes" : "No",
         requestToDeleteAccount: brand.requestToDeleteAccount ? "Yes" : "No",
-        profileIcon:brand.profileIcon
-
+        profileIcon: brand.profileIcon,
       }));
 
       dispatch(setBrands(formattedData));
     } catch (err) {
       console.error("Error fetching brands:", err);
+    }
+  }, [dispatch]);
+
+  // Fetch collaborations data
+  const fetchCollaborationsData = useCallback(async () => {
+    try {
+      const res = await api.get("/admin/get-collabs"); // Add endpoint to fetch collaborations data
+      console.log(res.data,'res.data')
+      const formattedData = res.data.data?.map((collab: any) => ({
+        id: collab._id,
+        campaignName: collab?.campaignId?.campaignName,
+        brandName: collab?.campaignId?.brandName,
+        campaign: collab?.campaignId, // object
+        brandEmail: collab?.brandId?.companyEmail, // Assuming there’s a nested brand object
+        creatorEmail: collab.creatorId?.fullName, // Assuming there’s a nested creator object
+        creator:collab?.creatorId, // object
+        status: collab.status,
+        videos:collab?.videos, // array of objects
+        createdAt: new Date(collab.createdAt).toLocaleDateString(),
+      }));
+
+      dispatch(setCollaborations(formattedData));
+    } catch (err) {
+      console.error("Error fetching collaborations:", err);
     }
   }, [dispatch]);
 
@@ -71,6 +98,8 @@ export default function Dashboard() {
           await fetchCreatorsData();
         } else if (activeTab === "brands") {
           await fetchBrandsData();
+        } else if (activeTab === "collaborations") {
+          await fetchCollaborationsData(); // Fetch collaborations data
         }
       } catch (err) {
         if (err.response?.status === 403) {
@@ -83,7 +112,7 @@ export default function Dashboard() {
     };
 
     fetchData();
-  }, [activeTab, fetchCreatorsData, fetchBrandsData, dispatch, router]);
+  }, [activeTab, fetchCreatorsData, fetchBrandsData, fetchCollaborationsData, dispatch, router]);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -104,14 +133,25 @@ export default function Dashboard() {
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="px-4 md:px-6 py-2">
                   <h2 className="text-xl md:text-2xl font-bold mb-4">
-                    {activeTab === "creators" ? "Creators List" : "Brands List"}
+                    {activeTab === "creators"
+                      ? "Creators List"
+                      : activeTab === "brands"
+                      ? "Brands List"
+                      : "Collaborations List"} {/* Update header dynamically */}
                   </h2>
                   <div className="overflow-x-auto overflow-y-hidden">
                     {activeTab === "creators" && (
-                      <DataTable type="creators" data={creators} fetchCreatorsData={fetchCreatorsData}  />
+                      <DataTable type="creators" data={creators} fetchCreatorsData={fetchCreatorsData} />
                     )}
                     {activeTab === "brands" && (
-                      <DataTable type="brands" data={brands} fetchBrandsData={fetchBrandsData}/>
+                      <DataTable type="brands" data={brands} fetchBrandsData={fetchBrandsData} />
+                    )}
+                    {activeTab === "collaborations" && (
+                      <DataTable
+                        type="collaborations"
+                        data={collaborations} // Pass collaborations data to the DataTable component
+                        fetchCollaborationsData={fetchCollaborationsData} // Pass fetch function for collaborations
+                      />
                     )}
                   </div>
                 </div>

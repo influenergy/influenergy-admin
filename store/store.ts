@@ -5,6 +5,7 @@ import authReducer from "./slices/authSlice";
 import creatorReducer from "./slices/creatorSlice";
 import brandReducer from "./slices/brandSlice";
 import tabReducer from "./slices/tabSlice";
+import collabReducer from "./slices/collaborationSlice";
 
 // Handle storage for SSR (Next.js, etc.)
 const createNoopStorage = () => ({
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   creators: creatorReducer,
   brands: brandReducer,
   tab: tabReducer,
+  collab: collabReducer,
 });
 
 // Persist Config

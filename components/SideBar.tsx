@@ -5,6 +5,7 @@ import {
   FaSignOutAlt,
   FaBars,
   FaTimes,
+  FaHandshake, // New icon for collaborations
 } from "react-icons/fa";
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
@@ -25,7 +26,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     startTransition(() => {
-      dispatch(setActiveTab(currentTab as "creators" | "brands"));
+      dispatch(setActiveTab(currentTab as "creators" | "brands" | "collaborations"));
     });
   }, [currentTab, dispatch]);
 
@@ -49,6 +50,11 @@ const Sidebar = () => {
       name: "Creators",
       href: "/dashboard?tab=creators",
       icon: <FaUsers className="text-xl" />,
+    },
+    {
+      name: "Collaborations",
+      href: "/dashboard?tab=collaborations",
+      icon: <FaHandshake className="text-xl" />, // Collaboration icon
     },
     {
       name: "Brands",
@@ -76,13 +82,13 @@ const Sidebar = () => {
               <Link
                 href={href}
                 className={`flex items-center space-x-3 px-4 md:px-5 py-2 md:py-3 rounded-lg text-base md:text-lg font-medium transition-all ${
-                  activeTab === name.toLowerCase()
+                  currentTab === name.toLowerCase()
                     ? "bg-blue-500 text-white shadow-lg"
                     : "hover:bg-gray-800 hover:text-blue-400"
                 }`}
               >
                 {icon} <span>{name}</span>
-                {isPending && activeTab === name.toLowerCase() && (
+                {isPending && currentTab === name.toLowerCase() && (
                   <span className="ml-2 text-sm animate-pulse">Loading...</span>
                 )}
               </Link>
