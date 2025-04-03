@@ -71,8 +71,8 @@ const DataTable = ({
     setSelectedProfile(null);
   };
 
-  const openCampaignModal = (campaign) => {
-    setSelectedCampaign(campaign);
+  const openCampaignModal = (campaign:any,amount:number) => {
+    setSelectedCampaign({...campaign,amount});
     setCampaignModalOpen(true);
   };
   
@@ -203,6 +203,7 @@ const DataTable = ({
       try {
         await api.put(`/admin/collaboration/payment-done/${collaborationId}`);
         alert("Payment status updated successfully!");
+        fetchCollaborationsData()
         // You might want to trigger a re-fetch here to update the UI
       } catch (error) {
         console.error("Payment update failed", error);
@@ -483,7 +484,7 @@ const DataTable = ({
           cell: ({ row }) => (
             <button
               className="truncate max-w-[200px] cursor-pointer text-blue-600 underline"
-              onClick={() => openCampaignModal(row.original.campaign)}
+              onClick={() => openCampaignModal(row.original.campaign,row.original.amount)}
             >
               Details
             </button>
@@ -539,11 +540,11 @@ const DataTable = ({
                 };
   
                 return (
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-full text-xs ${statusClasses[status]}`}>
+                  <div className=" items-center gap-2">
+                   
+                    {status !== "Under Process" ?  <span className={`px-2 py-1 rounded-full text-xs ${statusClasses[status]}`}>
                       {status}
-                    </span>
-                    {status === "Under Process" && (
+                    </span> : (
                       <button
                         onClick={() => handlePaymentDone(row.original.id,row.original.amount)}
                         disabled={loadingPaymentId === row.original.id}
@@ -553,7 +554,7 @@ const DataTable = ({
                             : "hover:bg-blue-600"
                         }`}
                       >
-                        {loadingPaymentId === row.original.id ? "Processing..." : `Payment Sent $${row.original.amount}` }
+                        {loadingPaymentId === row.original.id ? "Processing..." : `Make Payment $${row.original.amount}` }
                       </button>
                     )}
                   </div>
@@ -564,7 +565,7 @@ const DataTable = ({
           : []),
       ];
     }
-  }, [dropdownOpen, handleDelete, handleVerifyAccount, handleVerifyAccountCreator, hasPaymentStatus, type]);
+  }, [dropdownOpen, handleDelete, handleVerifyAccount, handleVerifyAccountCreator, hasPaymentStatus, loadingPaymentId, type]);
 
   const table = useReactTable({
     data: paginatedData,

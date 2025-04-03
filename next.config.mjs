@@ -28,7 +28,11 @@ const nextConfig = {
         hostname: "influenergybucket.s3.us-west-1.amazonaws.com",
         protocol: "https",
         pathname: "**",
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatar.iran.liara.run',
+      },
     ],
   },
 };
