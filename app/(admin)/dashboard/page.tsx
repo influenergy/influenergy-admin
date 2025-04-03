@@ -70,17 +70,18 @@ export default function Dashboard() {
   const fetchCollaborationsData = useCallback(async () => {
     try {
       const res = await api.get("/admin/get-collabs"); // Add endpoint to fetch collaborations data
-      console.log(res.data,'res.data')
       const formattedData = res.data.data?.map((collab: any) => ({
         id: collab._id,
-        campaignName: collab?.campaignId?.campaignName,
+        companyEmail: collab?.brandId?.companyEmail,
         brandName: collab?.campaignId?.brandName,
         campaign: collab?.campaignId, // object
-        brandEmail: collab?.brandId?.companyEmail, // Assuming there’s a nested brand object
-        creatorEmail: collab.creatorId?.fullName, // Assuming there’s a nested creator object
-        creator:collab?.creatorId, // object
-        status: collab.status,
+        creatorEmail: collab.creatorId?.email, // Assuming there’s a nested creator object
+        creatorName: collab.creatorId?.fullName,
+        creatorProfileIcon: collab.creatorId?.profileIcon,
         videos:collab?.videos, // array of objects
+        status: collab.status,
+        paymentStatus: collab.paymentStatus,
+        amount:collab.amount,
         createdAt: new Date(collab.createdAt).toLocaleDateString(),
       }));
 
