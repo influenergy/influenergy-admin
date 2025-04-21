@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   ColumnDef,
   useReactTable,
@@ -35,7 +35,8 @@ const DataTable = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [isCollaborationVideModalOpen, setIsCollaborationVideoModalOpen] = useState(false);
+  const [isCollaborationVideModalOpen, setIsCollaborationVideoModalOpen] =
+    useState(false);
   const [campaignModalOpen, setCampaignModalOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -71,17 +72,17 @@ const DataTable = ({
     setSelectedProfile(null);
   };
 
-  const openCampaignModal = (campaign:any,amount:number) => {
-    setSelectedCampaign({...campaign,amount});
+  const openCampaignModal = (campaign: any, amount: number) => {
+    setSelectedCampaign({ ...campaign, amount });
     setCampaignModalOpen(true);
   };
-  
+
   const closeCampaignModal = () => {
     setCampaignModalOpen(false);
     setSelectedCampaign(null);
   };
 
-  const handleOpenModal = (video:any) => {
+  const handleOpenModal = (video: any) => {
     setSelectedVideo(video);
     setIsCollaborationVideoModalOpen(true);
   };
@@ -182,37 +183,46 @@ const DataTable = ({
   const handleVerifyAccountCreator = async (id: string) => {
     try {
       // Call the API to verify the account
-      await api.put(`/creator/verify-account/${id}`);
+      const response = await api.put(`/creator/verify-account/${id}`);
 
       // Optionally, trigger a re-fetch of data or update the row state
-      alert("Account verified successfully!");
+      alert(response.data.message || "Account verified successfully!");
       fetchCreatorsData();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Verification failed:", error);
-      alert("Failed to verify account.");
+      alert(
+        `Failed to verify account: ${
+          error.response?.data?.message || error.message
+        }.`
+      );
     }
   };
-  const handlePaymentDone = async (collaborationId : string,amount:number) => {
-    const isConfirmed = window.confirm(
-      `Are you sure that you have completed the payment of $${amount} to this creator?`
-    );
 
-    if (isConfirmed) {
-      setLoadingPaymentId(collaborationId); // Disable the button
+  const handlePaymentDone = useCallback(
+    async (collaborationId: string, amount: number) => {
+      const isConfirmed = window.confirm(
+        `Are you sure that you have completed the payment of $${amount} to this creator?`
+      );
 
-      try {
-        await api.put(`/admin/collaboration/payment-done/${collaborationId}`);
-        alert("Payment status updated successfully!");
-        fetchCollaborationsData()
-        // You might want to trigger a re-fetch here to update the UI
-      } catch (error) {
-        console.error("Payment update failed", error);
-        alert("Failed to update payment status. Please try again.");
-      } finally {
-        setLoadingPaymentId(null); // Re-enable the button after response
+      if (isConfirmed) {
+        setLoadingPaymentId(collaborationId); // Disable the button
+
+        try {
+          await api.put(`/admin/collaboration/payment-done/${collaborationId}`);
+          alert("Payment status updated successfully!");
+          fetchCollaborationsData();
+          // You might want to trigger a re-fetch here to update the UI
+        } catch (error) {
+          console.error("Payment update failed", error);
+          alert("Failed to update payment status. Please try again.");
+        } finally {
+          setLoadingPaymentId(null); // Re-enable the button after response
+        }
       }
-    }
-  };
+    },
+    [fetchCollaborationsData]
+  );
+
   const hasPaymentStatus = data.some((item) => item.paymentStatus);
 
   const columns: ColumnDef<any>[] = useMemo(() => {
@@ -248,7 +258,7 @@ const DataTable = ({
           accessorKey: "email",
           header: "Email",
           cell: ({ row }) => (
-            <div className="text-sm md:text-base truncate max-w-[150px] md:max-w-[200px]">
+            <div className="text-sm md:text-base truncate w-full">
               {row.original.email}
             </div>
           ),
@@ -484,7 +494,9 @@ const DataTable = ({
           cell: ({ row }) => (
             <button
               className="truncate max-w-[200px] cursor-pointer text-blue-600 underline"
-              onClick={() => openCampaignModal(row.original.campaign,row.original.amount)}
+              onClick={() =>
+                openCampaignModal(row.original.campaign, row.original.amount)
+              }
             >
               Details
             </button>
@@ -497,12 +509,12 @@ const DataTable = ({
           header: "Collaboration Videos",
           cell: ({ row }) => (
             <div className="space-y-2">
-                <button
-                  onClick={() => handleOpenModal(row.original.videos)}
-                  className="bg-blue-500 text-white px-3 py-1 cursor-pointer rounded hover:bg-blue-600 transition"
-                >
-                  Videos
-                </button>
+              <button
+                onClick={() => handleOpenModal(row.original.videos)}
+                className="bg-blue-500 text-white px-3 py-1 cursor-pointer rounded hover:bg-blue-600 transition"
+              >
+                Videos
+              </button>
             </div>
           ),
         },
@@ -527,45 +539,64 @@ const DataTable = ({
         },
         ...(hasPaymentStatus
           ? [
-            {
-              accessorKey: "paymentStatus",
-              header: "Payment Status",
-              cell: ({ row }) => {
-                const status = row.original.paymentStatus || "Pending";
-                const statusClasses = {
-                  Cancelled: "bg-red-100 text-red-800",
-                  "Under Process": "bg-yellow-100 text-yellow-800",
-                  Done: "bg-green-100 text-green-800",
-                  Pending: "bg-gray-100 text-gray-800",
-                };
-  
-                return (
-                  <div className=" items-center gap-2">
-                   
-                    {status !== "Under Process" ?  <span className={`px-2 py-1 rounded-full text-xs ${statusClasses[status]}`}>
-                      {status}
-                    </span> : (
-                      <button
-                        onClick={() => handlePaymentDone(row.original.id,row.original.amount)}
-                        disabled={loadingPaymentId === row.original.id}
-                        className={`bg-blue-500 text-white px-3 py-1 rounded text-xs transition cursor-pointer ${
-                          loadingPaymentId === row.original.id
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-blue-600"
-                        }`}
-                      >
-                        {loadingPaymentId === row.original.id ? "Processing..." : `Make Payment $${row.original.amount}` }
-                      </button>
-                    )}
-                  </div>
-                );
+              {
+                accessorKey: "paymentStatus",
+                header: "Payment Status",
+                cell: ({ row }) => {
+                  const status = row.original.paymentStatus || "Pending";
+                  const statusClasses = {
+                    Cancelled: "bg-red-100 text-red-800",
+                    "Under Process": "bg-yellow-100 text-yellow-800",
+                    Done: "bg-green-100 text-green-800",
+                    Pending: "bg-gray-100 text-gray-800",
+                  };
+
+                  return (
+                    <div className=" items-center gap-2">
+                      {status !== "Under Process" ? (
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${statusClasses[status]}`}
+                        >
+                          {status}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() =>
+                            handlePaymentDone(
+                              row.original.id,
+                              row.original.amount
+                            )
+                          }
+                          disabled={loadingPaymentId === row.original.id}
+                          className={`bg-blue-500 text-white px-3 py-1 rounded text-xs transition cursor-pointer ${
+                            loadingPaymentId === row.original.id
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:bg-blue-600"
+                          }`}
+                        >
+                          {loadingPaymentId === row.original.id
+                            ? "Processing..."
+                            : `Make Payment $${row.original.amount}`}
+                        </button>
+                      )}
+                    </div>
+                  );
+                },
               },
-            },
-          ]
+            ]
           : []),
       ];
     }
-  }, [dropdownOpen, handleDelete, handleVerifyAccount, handleVerifyAccountCreator, hasPaymentStatus, loadingPaymentId, type]);
+  }, [
+    dropdownOpen,
+    handleDelete,
+    handlePaymentDone,
+    handleVerifyAccount,
+    handleVerifyAccountCreator,
+    hasPaymentStatus,
+    loadingPaymentId,
+    type,
+  ]);
 
   const table = useReactTable({
     data: paginatedData,
@@ -648,22 +679,20 @@ const DataTable = ({
           }}
         />
       )}
-      {
-        openCampaignModal && (
-          <CampaignModal 
-            campaign={selectedCampaign}
-            isOpen={openCampaignModal}
-            onClose={closeCampaignModal}
-          />
-        )
-      }
-      {
-        isCollaborationVideModalOpen && (
-          <CollaborationVideoModal 
-          videos={selectedVideo} onClose={handleCloseModal} isOpen={isCollaborationVideModalOpen}
-          />
-        )
-      }
+      {openCampaignModal && (
+        <CampaignModal
+          campaign={selectedCampaign}
+          isOpen={openCampaignModal}
+          onClose={closeCampaignModal}
+        />
+      )}
+      {isCollaborationVideModalOpen && (
+        <CollaborationVideoModal
+          videos={selectedVideo}
+          onClose={handleCloseModal}
+          isOpen={isCollaborationVideModalOpen}
+        />
+      )}
 
       {/* Image Modal */}
       {selectedImage && (

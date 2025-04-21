@@ -3,11 +3,14 @@ import { InstagramEmbed } from "react-social-media-embed";
 import { api } from "../utils/apiConfig";
 import { Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 interface VideoModalProps {
   isOpen: boolean;
   onClose: () => void;
   videos: {
+    title: string;
+    image: string;
     videoLink: string;
     addedAt: string;
     isPublic: "pending" | "approved" | "declined";
@@ -27,7 +30,7 @@ const VideoModal = ({
   refreshDashboard,
 }: VideoModalProps) => {
   const [loading, setLoading] = useState<string | null>(null);
-
+  console.log(videos, "videos");
   const handleVideoAction = async (
     videoId: string,
     action: "approved" | "declined"
@@ -96,7 +99,7 @@ const VideoModal = ({
             <h2 className="text-lg md:text-xl font-bold">Creator Videos</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
               aria-label="Close modal"
             >
               <svg
@@ -158,11 +161,14 @@ const VideoModal = ({
                     {/* Video Content */}
                     <div className="p-4">
                       <div className="flex justify-center max-w-[500px] mx-auto">
-                        <div className="w-full aspect-[9/16] relative">
-                          <InstagramEmbed
-                            url={getInstagramUrl(video.videoLink)}
-                            width="100%"
-                          />
+                        <div className="w-3/4 max-w-[300px] aspect-[9/12] relative">
+                          <Image
+                            src={video.image}
+                            alt="social video"
+                            fill
+                            className="object-cover rounded-md cursor-pointer"
+                            onClick={() => window.open(video.videoLink, '_blank')}
+                            />
                         </div>
                       </div>
                     </div>
