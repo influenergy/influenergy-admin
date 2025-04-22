@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const CampaignModal = ({ campaign, isOpen, onClose }) => {
   if (!isOpen || !campaign) return null;
-  console.log(campaign)
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       {/* Scrollable Content Area */}

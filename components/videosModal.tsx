@@ -30,7 +30,7 @@ const VideoModal = ({
   refreshDashboard,
 }: VideoModalProps) => {
   const [loading, setLoading] = useState<string | null>(null);
-  console.log(videos, "videos");
+
   const handleVideoAction = async (
     videoId: string,
     action: "approved" | "declined"
