@@ -24,31 +24,61 @@ export default function Dashboard() {
   const router = useRouter();
 
   // Fetch creators data
-  const fetchCreatorsData = useCallback(async () => {
-    try {
-      const res = await api.get("/admin/get-creators");
-      const formattedData = res.data.data?.map((creator: any) => ({
-        id: creator._id,
-        name: creator.fullName,
-        email: creator.email,
-        profileIcon: creator.profileIcon,
-        isProfileCompleted: creator.isProfileCompleted ? "Yes" : "No",
-        isEmailVerified: creator.isEmailVerified ? "Yes" : "No",
-        isAccountVerified: creator.isAccountVerified ? "Yes" : "No",
-        requestToDeleteAccount: creator.requestToDeleteAccount ? "Yes" : "No",
-        profile: creator.profile,
-      }));
+  const fetchCreatorsData = useCallback(
+    async (
+      filters: {
+        name?: string;
+        email?: string;
+        budget?: string;
+        city?: string;
+        createdAt?: string;
+      } = {}
+    ) => {
+      try {
+        // Build query string from filters
+        const params = new URLSearchParams();
+        if (filters.name) params.append("name", filters.name);
+        if (filters.email) params.append("email", filters.email);
+        if (filters.budget) params.append("budget", filters.budget);
+        if (filters.city) params.append("city", filters.city);
+        if (filters.createdAt) params.append("createdAt", filters.createdAt);
 
-      dispatch(setCreators(formattedData));
-    } catch (err) {
-      console.error("Error fetching creators:", err);
-    }
-  }, [dispatch]);
+        const queryString = params.toString() ? `?${params.toString()}` : "";
+
+        const res = await api.get(`/admin/get-creators${queryString}`);
+        const formattedData = res.data.data?.map((creator: any) => ({
+          id: creator._id,
+          name: creator.fullName,
+          email: creator.email,
+          profileIcon: creator.profileIcon,
+          isProfileCompleted: creator.isProfileCompleted ? "Yes" : "No",
+          isEmailVerified: creator.isEmailVerified ? "Yes" : "No",
+          isAccountVerified: creator.isAccountVerified ? "Yes" : "No",
+          requestToDeleteAccount: creator.requestToDeleteAccount ? "Yes" : "No",
+          profile: creator.profile,
+        }));
+        dispatch(setCreators(formattedData));
+      } catch (err) {
+        console.error("Error fetching creators:", err);
+      }
+    },
+    [dispatch]
+  );
 
   // Fetch brands data
-  const fetchBrandsData = useCallback(async () => {
+  const fetchBrandsData = useCallback(async (
+    filters: {
+      companyName?: string,
+      companyEmail?: string,
+    } = {}) => {
     try {
-      const res = await api.get("/admin/get-brands");
+      const params = new URLSearchParams();
+      if (filters.companyName) params.append("companyName", filters.companyName);
+      if (filters.companyEmail) params.append("companyEmail", filters.companyEmail);
+     
+
+      const queryString = params.toString() ? `?${params.toString()}` : "";
+      const res = await api.get(`/admin/get-brands` + queryString); // Use the query string to filter brands
       const formattedData = res.data.data?.map((brand: any) => ({
         id: brand._id,
         name: brand.fullName,
@@ -75,13 +105,13 @@ export default function Dashboard() {
         companyEmail: collab?.brandId?.companyEmail,
         brandName: collab?.campaignId?.brandName,
         campaign: collab?.campaignId, // object
-        creatorEmail: collab.creatorId?.email, // Assuming there’s a nested creator object
+        creatorEmail: collab.creatorId?.email, // Assuming there's a nested creator object
         creatorName: collab.creatorId?.fullName,
         creatorProfileIcon: collab.creatorId?.profileIcon,
-        videos:collab?.videos, // array of objects
+        videos: collab?.videos, // array of objects
         status: collab.status,
         paymentStatus: collab.paymentStatus,
-        amount:collab.amount,
+        amount: collab.amount,
         createdAt: new Date(collab.createdAt).toLocaleDateString(),
       }));
 
@@ -96,7 +126,7 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         if (activeTab === "creators") {
-          await fetchCreatorsData();
+          await fetchCreatorsData({}); // Call with empty filters by default
         } else if (activeTab === "brands") {
           await fetchBrandsData();
         } else if (activeTab === "collaborations") {
@@ -137,8 +167,8 @@ export default function Dashboard() {
                     {activeTab === "creators"
                       ? "Creators List"
                       : activeTab === "brands"
-                      ? "Brands List"
-                      : "Collaborations List"} {/* Update header dynamically */}
+                        ? "Brands List"
+                        : "Collaborations List"} {/* Update header dynamically */}
                   </h2>
                   <div className="overflow-x-auto overflow-y-hidden">
                     {activeTab === "creators" && (

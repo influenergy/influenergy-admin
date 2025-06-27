@@ -14,12 +14,25 @@ import { api } from "../utils/apiConfig";
 import VideoModal from "./videosModal";
 import CampaignModal from "./CampaignModal";
 import CollaborationVideoModal from "./CollaborationVideoModal";
+import React from "react";
+
+interface CreatorFilter {
+  name?: string;
+  email?: string;
+  budget?: string;
+  city?: string;
+  createdAt?: string;
+}
+interface BrandFilter {
+  companyName: string,
+  companyEmail: string
+}
 
 interface DataTableProps {
   type: "creators" | "brands" | "collaborations";
   data: any[];
-  fetchCreatorsData?: () => void;
-  fetchBrandsData?: () => void;
+  fetchCreatorsData?: (filters?: CreatorFilter) => void;
+  fetchBrandsData?: (filter?: BrandFilter) => void;
   fetchCollaborationsData?: () => void;
 }
 
@@ -44,11 +57,32 @@ const DataTable = ({
 
   const [loadingPaymentId, setLoadingPaymentId] = useState(null);
 
+  const [cities, setCities] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState<string>("");
+
   const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 10;
 
-  const totalPages = Math.ceil(data.length / pageSize);
+  // Compute unique cities and budget range for creators
+  const cityOptions = useMemo(() => {
+    if (type !== "creators") return [];
+    const cities = data.map((item) => item.profile?.city).filter(Boolean);
+    return Array.from(new Set(cities));
+  }, [data, type]);
 
+  // Filter state for creators and brands
+  const [filters, setFilters] = useState({
+    name: "",
+    email: "",
+    budget: "",
+    city: "",
+    createdAt: "",
+    companyName: "",
+    companyEmail: "",
+  });
+
+  // Use data for pagination directly
+  const totalPages = Math.ceil(data.length / pageSize);
   const paginatedData = useMemo(() => {
     return data.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
   }, [data, pageIndex]);
@@ -146,7 +180,7 @@ const DataTable = ({
       // Show user-friendly error message
       alert(
         error.response?.data?.message ||
-          "Failed to delete user. Please try again."
+        "Failed to delete user. Please try again."
       );
     }
   };
@@ -191,8 +225,7 @@ const DataTable = ({
     } catch (error: any) {
       console.error("Verification failed:", error);
       alert(
-        `Failed to verify account: ${
-          error.response?.data?.message || error.message
+        `Failed to verify account: ${error.response?.data?.message || error.message
         }.`
       );
     }
@@ -272,11 +305,10 @@ const DataTable = ({
             return (
               <div className="flex items-center space-x-2 justify-center">
                 <span
-                  className={`px-2 py-1 rounded-full text-xs ${
-                    isVerified
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
+                  className={`px-2 py-1 rounded-full text-xs ${isVerified
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                    }`}
                 >
                   {isVerified ? "Verified" : "Unverified"}
                 </span>
@@ -299,11 +331,10 @@ const DataTable = ({
           header: "Email Verified",
           cell: ({ row }) => (
             <span
-              className={`px-2 py-1 rounded-full text-xs md:text-sm ${
-                row.original.isEmailVerified === "Yes"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
+              className={`px-2 py-1 rounded-full text-xs md:text-sm ${row.original.isEmailVerified === "Yes"
+                ? "bg-green-100 text-green-800"
+                : "bg-yellow-100 text-yellow-800"
+                }`}
             >
               {row.original.isEmailVerified}
             </span>
@@ -338,11 +369,10 @@ const DataTable = ({
           header: "Requested to Delete Account",
           cell: ({ row }) => (
             <span
-              className={`px-2 py-1 rounded-full text-xs md:text-sm ${
-                row.original.requestToDeleteAccount === "Yes"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
+              className={`px-2 py-1 rounded-full text-xs md:text-sm ${row.original.requestToDeleteAccount === "Yes"
+                ? "bg-green-100 text-green-800"
+                : "bg-yellow-100 text-yellow-800"
+                }`}
             >
               {row.original.requestToDeleteAccount}
             </span>
@@ -372,11 +402,10 @@ const DataTable = ({
                         handleDelete(row.original.id, "creator");
                       }
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 ${
-                      row.original.requestToDeleteAccount === "No"
-                        ? "cursor-not-allowed opacity-50"
-                        : "cursor-pointer"
-                    }`}
+                    className={`w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 ${row.original.requestToDeleteAccount === "No"
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
+                      }`}
                     disabled={row.original.requestToDeleteAccount === "No"}
                   >
                     Delete
@@ -417,11 +446,10 @@ const DataTable = ({
           header: "Requested to Delete Account",
           cell: ({ row }) => (
             <span
-              className={`px-2 py-1 rounded-full text-xs md:text-sm ${
-                row.original.requestToDeleteAccount === "Yes"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
+              className={`px-2 py-1 rounded-full text-xs md:text-sm ${row.original.requestToDeleteAccount === "Yes"
+                ? "bg-green-100 text-green-800"
+                : "bg-yellow-100 text-yellow-800"
+                }`}
             >
               {row.original.requestToDeleteAccount}
             </span>
@@ -455,11 +483,10 @@ const DataTable = ({
                         handleDelete(row.original.id, "brand");
                       }
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 ${
-                      row.original.requestToDeleteAccount === "No"
-                        ? "cursor-not-allowed opacity-50"
-                        : "cursor-pointer"
-                    }`}
+                    className={`w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 ${row.original.requestToDeleteAccount === "No"
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
+                      }`}
                     disabled={row.original.requestToDeleteAccount === "No"}
                   >
                     Delete
@@ -523,15 +550,14 @@ const DataTable = ({
           header: "Collaboration Status",
           cell: ({ row }) => (
             <span
-              className={`px-2 py-1 rounded-full text-xs ${
-                row.original.status === "Active"
-                  ? "bg-green-100 text-green-800"
-                  : row.original.status === "Completed"
+              className={`px-2 py-1 rounded-full text-xs ${row.original.status === "Active"
+                ? "bg-green-100 text-green-800"
+                : row.original.status === "Completed"
                   ? "bg-blue-100 text-blue-800"
                   : row.original.status === "Cancelled"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
+                    ? "bg-red-100 text-red-800"
+                    : "bg-yellow-100 text-yellow-800"
+                }`}
             >
               {row.original.status}
             </span>
@@ -539,51 +565,50 @@ const DataTable = ({
         },
         ...(hasPaymentStatus
           ? [
-              {
-                accessorKey: "paymentStatus",
-                header: "Payment Status",
-                cell: ({ row }) => {
-                  const status = row.original.paymentStatus || "Pending";
-                  const statusClasses = {
-                    Cancelled: "bg-red-100 text-red-800",
-                    "Under Process": "bg-yellow-100 text-yellow-800",
-                    Done: "bg-green-100 text-green-800",
-                    Pending: "bg-gray-100 text-gray-800",
-                  };
+            {
+              accessorKey: "paymentStatus",
+              header: "Payment Status",
+              cell: ({ row }) => {
+                const status = row.original.paymentStatus || "Pending";
+                const statusClasses = {
+                  Cancelled: "bg-red-100 text-red-800",
+                  "Under Process": "bg-yellow-100 text-yellow-800",
+                  Done: "bg-green-100 text-green-800",
+                  Pending: "bg-gray-100 text-gray-800",
+                };
 
-                  return (
-                    <div className=" items-center gap-2">
-                      {status !== "Under Process" ? (
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs ${statusClasses[status]}`}
-                        >
-                          {status}
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() =>
-                            handlePaymentDone(
-                              row.original.id,
-                              row.original.amount
-                            )
-                          }
-                          disabled={loadingPaymentId === row.original.id}
-                          className={`bg-blue-500 text-white px-3 py-1 rounded text-xs transition cursor-pointer ${
-                            loadingPaymentId === row.original.id
-                              ? "opacity-50 cursor-not-allowed"
-                              : "hover:bg-blue-600"
+                return (
+                  <div className=" items-center gap-2">
+                    {status !== "Under Process" ? (
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${statusClasses[status]}`}
+                      >
+                        {status}
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() =>
+                          handlePaymentDone(
+                            row.original.id,
+                            row.original.amount
+                          )
+                        }
+                        disabled={loadingPaymentId === row.original.id}
+                        className={`bg-blue-500 text-white px-3 py-1 rounded text-xs transition cursor-pointer ${loadingPaymentId === row.original.id
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-blue-600"
                           }`}
-                        >
-                          {loadingPaymentId === row.original.id
-                            ? "Processing..."
-                            : `Make Payment $${row.original.amount}`}
-                        </button>
-                      )}
-                    </div>
-                  );
-                },
+                      >
+                        {loadingPaymentId === row.original.id
+                          ? "Processing..."
+                          : `Make Payment $${row.original.amount}`}
+                      </button>
+                    )}
+                  </div>
+                );
               },
-            ]
+            },
+          ]
           : []),
       ];
     }
@@ -604,8 +629,162 @@ const DataTable = ({
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const fetchFilteredData = useCallback(() => {
+    setPageIndex(0);
+    if (type === "creators") {
+      fetchCreatorsData({
+        name: filters.name,
+        email: filters.email,
+        budget: filters.budget,
+        city: filters.city,
+        createdAt: filters.createdAt,
+      });
+    } else if (type === "brands") {
+      fetchBrandsData({
+        companyName: filters.companyName,
+        companyEmail: filters.companyEmail,
+      });
+    } else {
+      fetchCollaborationsData?.();
+    }
+  }, [
+    type,
+    filters.name,
+    filters.email,
+    filters.budget,
+    filters.city,
+    filters.createdAt,
+    filters.companyName,
+    filters.companyEmail,
+    fetchCreatorsData,
+    fetchBrandsData,
+    fetchCollaborationsData,
+    setPageIndex,
+  ]);
+
   return (
     <div className="w-full overflow-hidden">
+      {/* Filter Section for Creators */}
+      {type === "creators" && (
+        <div className="flex flex-wrap gap-4 mb-6 bg-white p-6 rounded-xl shadow-sm items-end border border-gray-200">
+          <div className="flex flex-col min-w-[160px]">
+            <label className="block text-xs font-semibold text-gray-600 mb-2">Name</label>
+            <input
+              type="text"
+              value={filters.name}
+              onChange={(e) => setFilters((f) => ({ ...f, name: e.target.value }))}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition placeholder:text-gray-400"
+              placeholder="Search by name"
+            />
+          </div>
+          <div className="flex flex-col min-w-[160px]">
+            <label className="block text-xs font-semibold text-gray-600 mb-2">Email</label>
+            <input
+              type="email"
+              value={filters.email}
+              onChange={(e) => setFilters((f) => ({ ...f, email: e.target.value }))}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition placeholder:text-gray-400"
+              placeholder="Search by email"
+            />
+          </div>
+          <div className="flex flex-col min-w-[220px]">
+            <label className="block text-xs font-semibold text-gray-600 mb-2">Budget Sort</label>
+            <select
+              value={filters.budget}
+              onChange={(e) => setFilters((f) => ({ ...f, budget: e.target.value }))}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition bg-white cursor-pointer"
+            >
+              <option value="">All</option>
+              <option value="highest">Highest</option>
+              <option value="lowest">Lowest</option>
+            </select>
+          </div>
+          <div className="flex flex-col min-w-[160px]">
+            <label className="block text-xs font-semibold text-gray-600 mb-2">City</label>
+            <select
+              value={filters.city}
+              onChange={(e) => setFilters((f) => ({ ...f, city: e.target.value }))}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition bg-white cursor-pointer"
+            >
+              <option value="">All</option>
+              {cityOptions.map((city) => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col min-w-[140px]">
+            <label className="block text-xs font-semibold text-gray-600 mb-2">Created At</label>
+            <select
+              value={filters.createdAt}
+              onChange={(e) => setFilters((f) => ({ ...f, createdAt: e.target.value }))}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition bg-white cursor-pointer"
+            >
+              <option value="">All</option>
+              <option value="latest">Latest</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </div>
+          <button
+            className="ml-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-semibold shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 transition cursor-pointer"
+            onClick={() => fetchFilteredData()}
+          >
+            Filter
+          </button>
+          <button
+            className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-semibold shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition cursor-pointer"
+            onClick={() =>
+              setFilters({
+                name: "",
+                email: "",
+                budget: "",
+                city: "",
+                createdAt: "",
+                companyName: "",
+                companyEmail: "",
+              })
+            }
+          >
+            Reset
+          </button>
+        </div>
+      )}
+      {/* Filter Section for Brands */}
+      {type === "brands" && (
+        <div className="flex flex-wrap gap-4 mb-6 bg-white p-6 rounded-xl shadow-sm items-end border border-gray-200">
+          <div className="flex flex-col min-w-[160px]">
+            <label className="block text-xs font-semibold text-gray-600 mb-2">Brand Name</label>
+            <input
+              type="text"
+              value={filters.companyName}
+              onChange={(e) => setFilters((f) => ({ ...f, companyName: e.target.value }))}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition placeholder:text-gray-400"
+              placeholder="Search by brand name"
+            />
+          </div>
+          <div className="flex flex-col min-w-[160px]">
+            <label className="block text-xs font-semibold text-gray-600 mb-2">Email</label>
+            <input
+              type="email"
+              value={filters.companyEmail}
+              onChange={(e) => setFilters((f) => ({ ...f, companyEmail: e.target.value }))}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition placeholder:text-gray-400"
+              placeholder="Search by email"
+            />
+          </div>
+          <button
+            className="ml-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-semibold shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 transition cursor-pointer"
+            onClick={() => fetchFilteredData()}
+          >
+            Filter
+          </button>
+          <button
+            className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-semibold shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition cursor-pointer"
+            onClick={() => setFilters((f) => ({ ...f, companyName: '', companyEmail: '' }))}
+          >
+            Reset
+          </button>
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300 min-w-[750px]">
           <thead className="bg-gray-200">
