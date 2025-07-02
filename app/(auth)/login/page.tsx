@@ -42,9 +42,10 @@ export default function Login() {
           email: data.data.companyEmail,
         })
       );
-
+      console.log("Login response:", data);
       alert("Login successful!");
       router.push("/dashboard");
+      
     } catch (err: any) {
       // Check if API response contains an error message
       if (err.response && err.response.data && err.response.data.message) {
