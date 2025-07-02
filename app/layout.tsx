@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <link rel="manifest" href="/manifest.json" />
-      <body className={`${poppins.className}`}>
+      <body className={`${poppins.className} overflow-scroll`}>
         <Providers>{children}</Providers>
       </body>
     </html>

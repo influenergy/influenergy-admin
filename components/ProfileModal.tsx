@@ -10,14 +10,19 @@ interface ProfileModalProps {
 }
 
 const ProfileModal = ({ profile, isOpen, onClose }: ProfileModalProps) => {
-  
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
     }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
   }, [isOpen]);
+
 
   if (!profile) return null;
 
@@ -65,7 +70,7 @@ const ProfileModal = ({ profile, isOpen, onClose }: ProfileModalProps) => {
               <h3 className="text-lg font-semibold text-gray-800">Social Links</h3>
               <div className="space-y-2">
                 <p>
-                  <span className="font-semibold">{profile.socialLinks?.primary?.platform}:</span> 
+                  <span className="font-semibold">{profile.socialLinks?.primary?.platform}:</span>
                   <a
                     href={profile.socialLinks?.primary?.link}
                     target="_blank"
@@ -73,11 +78,11 @@ const ProfileModal = ({ profile, isOpen, onClose }: ProfileModalProps) => {
                     className="text-blue-600 hover:underline ml-1"
                   >
                     {profile.socialLinks?.primary?.link}
-                  </a> 
+                  </a>
                   ({profile.socialLinks?.primary?.followers} followers)
                 </p>
                 <p>
-                  <span className="font-semibold">{profile.socialLinks?.secondary?.platform}:</span> 
+                  <span className="font-semibold">{profile.socialLinks?.secondary?.platform}:</span>
                   <a
                     href={profile.socialLinks?.secondary?.link}
                     target="_blank"
@@ -85,7 +90,7 @@ const ProfileModal = ({ profile, isOpen, onClose }: ProfileModalProps) => {
                     className="text-blue-600 hover:underline ml-1"
                   >
                     {profile.socialLinks?.secondary?.link}
-                  </a> 
+                  </a>
                   ({profile.socialLinks?.secondary?.followers} followers)
                 </p>
               </div>

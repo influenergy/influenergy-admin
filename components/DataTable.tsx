@@ -663,7 +663,7 @@ const DataTable = ({
   ]);
 
   return (
-    <div className="w-full overflow-hidden">
+    <div className="w-full">
       {/* Filter Section for Creators */}
       {type === "creators" && (
         <div className="flex flex-wrap gap-4 mb-6 bg-white p-6 rounded-xl shadow-sm items-end border border-gray-200">

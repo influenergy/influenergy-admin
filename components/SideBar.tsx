@@ -37,7 +37,9 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await api.post("/logout");
+      await api.post("/logout",{
+        userType: "admin"
+      });
       dispatch(logout());
       router.push("/login");
     } catch (error) {
