@@ -1,22 +1,38 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const AUTH_PAGES = ["/", "/login", "/register"];
+const PROTECTED_PATH = "/dashboard";
+
+const COOKIE_KEYS = [
+  "access_token_admin_dev",
+  "access_token_admin",
+];
+
 export function middleware(request: NextRequest) {
-  const authToken = request.cookies.get("access_token")?.value;
+  const { pathname } = request.nextUrl;
 
-  const isAuthPage =
-    request.nextUrl.pathname.startsWith("/login") ||
-    request.nextUrl.pathname.startsWith("/register");
-  const isHomePage = request.nextUrl.pathname === "/";
-  const isProtectedRoute = request.nextUrl.pathname.startsWith("/dashboard");
+  const isAuthPage = AUTH_PAGES.includes(pathname);
+  const isProtectedRoute = pathname.startsWith(PROTECTED_PATH);
 
-  // If user is authenticated and trying to access login, register, or home page
-  if (authToken && (isAuthPage || isHomePage)) {
+  let authToken: string | null = null;
+
+  // Check for valid cookie
+  for (const key of COOKIE_KEYS) {
+    const cookie = request.cookies.get(key);
+    if (cookie?.value) {
+      authToken = cookie.value;
+      break;
+    }
+  }
+
+  // If user is authenticated and tries to access login/register/home
+  if (authToken && isAuthPage) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // If user is not authenticated and trying to access dashboard
-  if (!authToken && request.nextUrl.pathname.startsWith("/dashboard")) {
+  // If user is not authenticated and tries to access protected route
+  if (!authToken && isProtectedRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
