@@ -15,6 +15,7 @@ import VideoModal from "./videosModal";
 import CampaignModal from "./CampaignModal";
 import CollaborationVideoModal from "./CollaborationVideoModal";
 import React from "react";
+import { current } from "@reduxjs/toolkit";
 
 interface CreatorFilter {
   name?: string;
@@ -22,7 +23,10 @@ interface CreatorFilter {
   budget?: string;
   city?: string;
   createdAt?: string;
+  page?: number
+  profileFilter?: string;
 }
+
 interface BrandFilter {
   companyName: string,
   companyEmail: string
@@ -31,14 +35,27 @@ interface BrandFilter {
 interface DataTableProps {
   type: "creators" | "brands" | "collaborations";
   data: any[];
+  otherInfo?:
+  {
+    page: number,
+    count: number,
+    totalPages: number,
+    totalCount: number,
+    cities: string[],
+  };
   fetchCreatorsData?: (filters?: CreatorFilter) => void;
   fetchBrandsData?: (filter?: BrandFilter) => void;
   fetchCollaborationsData?: () => void;
 }
 
+interface VerifyAccountData {
+  companyEmail: string;
+}
+
 const DataTable = ({
   type,
   data,
+  otherInfo,
   fetchCreatorsData,
   fetchBrandsData,
   fetchCollaborationsData,
@@ -57,11 +74,10 @@ const DataTable = ({
 
   const [loadingPaymentId, setLoadingPaymentId] = useState(null);
 
-  const [cities, setCities] = useState<string[]>([]);
-  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1)
 
   const [pageIndex, setPageIndex] = useState(0);
-  const pageSize = 10;
+
 
   // Compute unique cities and budget range for creators
   const cityOptions = useMemo(() => {
@@ -79,13 +95,9 @@ const DataTable = ({
     createdAt: "",
     companyName: "",
     companyEmail: "",
+    profileFilter: "profiled",
   });
 
-  // Use data for pagination directly
-  const totalPages = Math.ceil(data.length / pageSize);
-  const paginatedData = useMemo(() => {
-    return data.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
-  }, [data, pageIndex]);
 
   const openModal = (profile: any) => {
     setSelectedProfile(profile);
@@ -185,9 +197,6 @@ const DataTable = ({
     }
   };
 
-  interface VerifyAccountData {
-    companyEmail: string;
-  }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleVerifyAccount = async (
     data: VerifyAccountData
@@ -343,26 +352,31 @@ const DataTable = ({
         {
           accessorKey: "actions1",
           header: "Actions",
-          cell: ({ row }) => (
-            <div className="flex flex-col md:flex-row gap-2 justify-center items-center">
-              {row.original.profile && (
-                <button
-                  onClick={() => openModal(row.original.profile)}
-                  className="bg-blue-600 text-white px-3 py-1.5 text-xs md:text-sm rounded-lg transition-all duration-200 hover:bg-blue-700 active:scale-95 focus:ring cursor-pointer focus:ring-blue-300 w-full md:w-auto"
-                >
-                  Profile
-                </button>
-              )}
-              {row.original.profile?.socialVideos?.length > 0 && (
-                <button
-                  onClick={() => openSocialVideoModal(row.original.profile)}
-                  className="bg-purple-600 text-white px-3 py-1.5 text-xs md:text-sm rounded-lg transition-all duration-200 hover:bg-purple-700 active:scale-95 focus:ring focus:ring-purple-300 w-full md:w-auto cursor-pointer"
-                >
-                  Videos
-                </button>
-              )}
-            </div>
-          ),
+          cell: ({ row }) => {
+            // Debug: log the profile object (remove or comment out in production)
+            return (
+              <div className="flex flex-col md:flex-row gap-2 justify-center items-center">
+                {row.original.profile && Object.keys(row.original.profile).length > 0 && (
+                  <button
+                    onClick={() => {
+                      openModal(row.original.profile)
+                    }}
+                    className="bg-blue-600 text-white px-3 py-1.5 text-xs md:text-sm rounded-lg transition-all duration-200 hover:bg-blue-700 active:scale-95 focus:ring cursor-pointer focus:ring-blue-300 w-full md:w-auto"
+                  >
+                    Profile
+                  </button>
+                )}
+                {row.original.profile?.socialVideos?.length > 0 && (
+                  <button
+                    onClick={() => openSocialVideoModal(row.original.profile)}
+                    className="bg-purple-600 text-white px-3 py-1.5 text-xs md:text-sm rounded-lg transition-all duration-200 hover:bg-purple-700 active:scale-95 focus:ring focus:ring-purple-300 w-full md:w-auto cursor-pointer"
+                  >
+                    Videos
+                  </button>
+                )}
+              </div>
+            );
+          },
         },
         {
           accessorKey: "actions3",
@@ -624,7 +638,7 @@ const DataTable = ({
   ]);
 
   const table = useReactTable({
-    data: paginatedData,
+    data: data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -634,10 +648,12 @@ const DataTable = ({
     if (type === "creators") {
       fetchCreatorsData({
         name: filters.name,
+        page: 1,
         email: filters.email,
         budget: filters.budget,
         city: filters.city,
         createdAt: filters.createdAt,
+        profileFilter: filters.profileFilter,
       });
     } else if (type === "brands") {
       fetchBrandsData({
@@ -647,26 +663,45 @@ const DataTable = ({
     } else {
       fetchCollaborationsData?.();
     }
-  }, [
-    type,
-    filters.name,
-    filters.email,
-    filters.budget,
-    filters.city,
-    filters.createdAt,
-    filters.companyName,
-    filters.companyEmail,
-    fetchCreatorsData,
-    fetchBrandsData,
-    fetchCollaborationsData,
-    setPageIndex,
-  ]);
+  }, [type, filters.name, filters.email, filters.budget, filters.city, filters.createdAt, filters.companyName, filters.companyEmail, filters.profileFilter, fetchCreatorsData, fetchBrandsData, fetchCollaborationsData, setPageIndex]);
 
+
+  const handlePageChange = (page: number) => {
+    if (type === "creators") {
+      fetchCreatorsData({
+        name: filters.name,
+        page: page,
+        email: filters.email,
+        budget: filters.budget,
+        city: filters.city,
+        createdAt: filters.createdAt,
+        profileFilter: filters.profileFilter,
+      });
+    } else if (type === "brands") {
+      fetchBrandsData({
+        companyName: filters.companyName,
+        companyEmail: filters.companyEmail,
+      });
+    } else {
+      fetchCollaborationsData?.();
+    }
+  }
   return (
     <div className="w-full">
       {/* Filter Section for Creators */}
       {type === "creators" && (
         <div className="flex flex-wrap gap-4 mb-6 bg-white p-6 rounded-xl shadow-sm items-end border border-gray-200">
+          <div className="flex flex-col min-w-[160px]">
+            <select
+              value={filters.profileFilter}
+              onChange={(e) => setFilters((f) => ({ ...f, profileFilter: e.target.value }))}
+              className="font-bold border-3 border-purple-500 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-purple-400 transition bg-purple-50 text-purple-800 cursor-pointer shadow-md hover:bg-purple-100 hover:border-purple-700"
+              style={{ minHeight: '44px', fontSize: '1rem' }}
+            >
+              <option value="profiled" className="font-bold text-purple-700 bg-white">Profiled</option>
+              <option value="non_profiled" className="font-bold text-purple-700 bg-white">Non-profiled</option>
+            </select>
+          </div>
           <div className="flex flex-col min-w-[160px]">
             <label className="block text-xs font-semibold text-gray-600 mb-2">Name</label>
             <input
@@ -687,31 +722,35 @@ const DataTable = ({
               placeholder="Search by email"
             />
           </div>
-          <div className="flex flex-col min-w-[220px]">
-            <label className="block text-xs font-semibold text-gray-600 mb-2">Budget Sort</label>
-            <select
-              value={filters.budget}
-              onChange={(e) => setFilters((f) => ({ ...f, budget: e.target.value }))}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition bg-white cursor-pointer"
-            >
-              <option value="">All</option>
-              <option value="highest">Highest</option>
-              <option value="lowest">Lowest</option>
-            </select>
-          </div>
-          <div className="flex flex-col min-w-[160px]">
-            <label className="block text-xs font-semibold text-gray-600 mb-2">City</label>
-            <select
-              value={filters.city}
-              onChange={(e) => setFilters((f) => ({ ...f, city: e.target.value }))}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition bg-white cursor-pointer"
-            >
-              <option value="">All</option>
-              {cityOptions.map((city) => (
-                <option key={city} value={city}>{city}</option>
-              ))}
-            </select>
-          </div>
+          {filters.profileFilter === "profiled" && <>
+            <div className="flex flex-col min-w-[220px]">
+              <label className="block text-xs font-semibold text-gray-600 mb-2">Budget Sort</label>
+              <select
+                value={filters.budget}
+                onChange={(e) => setFilters((f) => ({ ...f, budget: e.target.value }))}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition bg-white cursor-pointer"
+              >
+                <option value="">All</option>
+                <option value="highest">Highest</option>
+                <option value="lowest">Lowest</option>
+              </select>
+            </div>
+            <div className="flex flex-col min-w-[160px]">
+              <label className="block text-xs font-semibold text-gray-600 mb-2">City</label>
+              <select
+                value={filters.city}
+                onChange={(e) => {
+                  setFilters((f) => ({ ...f, city: e.target.value }))}}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition bg-white cursor-pointer"
+              >
+                <option value="">All</option>
+                {otherInfo?.cities.map((city) => (
+                  <option key={city.toLowerCase()} value={city}>{city}</option>
+                ))}
+              </select>
+            </div>
+          </>
+          }
           <div className="flex flex-col min-w-[140px]">
             <label className="block text-xs font-semibold text-gray-600 mb-2">Created At</label>
             <select
@@ -726,13 +765,14 @@ const DataTable = ({
           </div>
           <button
             className="ml-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-semibold shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 transition cursor-pointer"
-            onClick={() => fetchFilteredData()}
+            onClick={() => { fetchFilteredData() }}
           >
             Filter
           </button>
           <button
             className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-semibold shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition cursor-pointer"
-            onClick={() =>
+            onClick={() => {
+              // setCurrentPage(1)
               setFilters({
                 name: "",
                 email: "",
@@ -741,7 +781,9 @@ const DataTable = ({
                 createdAt: "",
                 companyName: "",
                 companyEmail: "",
+                profileFilter: "profiled",
               })
+            }
             }
           >
             Reset
@@ -773,13 +815,18 @@ const DataTable = ({
           </div>
           <button
             className="ml-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-semibold shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 transition cursor-pointer"
-            onClick={() => fetchFilteredData()}
+            onClick={() => {
+              fetchFilteredData()
+            }}
           >
             Filter
           </button>
           <button
             className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-semibold shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition cursor-pointer"
-            onClick={() => setFilters((f) => ({ ...f, companyName: '', companyEmail: '' }))}
+            onClick={() => {
+              setCurrentPage(1)
+              setFilters((f) => ({ ...f, companyName: '', companyEmail: '' }))
+            }}
           >
             Reset
           </button>
@@ -818,20 +865,27 @@ const DataTable = ({
       {/* Pagination Controls */}
       <div className="flex justify-between items-center p-4 flex-wrap gap-2">
         <button
-          onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
-          disabled={pageIndex === 0}
+          onClick={() => {
+            if (otherInfo?.page > 1) {
+              setCurrentPage(otherInfo?.page - 1)
+            }
+          }}
+          disabled={otherInfo?.page === 1}
           className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50 cursor-pointer transition-colors"
         >
           Previous
         </button>
         <span className="text-sm text-gray-600">
-          Page {pageIndex + 1} of {totalPages}
+          Page {otherInfo?.page} of {otherInfo?.totalPages}
         </span>
         <button
-          onClick={() =>
-            setPageIndex((prev) => Math.min(prev + 1, totalPages - 1))
+          onClick={() => {
+            // setPageIndex((prev) => Math.min(prev + 1, otherInfo?.totalPages - 1))
+            setCurrentPage(otherInfo?.page + 1)
+            handlePageChange(otherInfo?.page + 1)
           }
-          disabled={pageIndex === totalPages - 1}
+          }
+          disabled={pageIndex === otherInfo?.totalPages - 1}
           className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50 cursor-pointer transition-colors"
         >
           Next

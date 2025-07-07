@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Sidebar from "../../../components/SideBar";
 import Header from "../../../components/Header";
 import DataTable from "../../../components/DataTable";
@@ -21,6 +21,13 @@ export default function Dashboard() {
   const collaborations = useSelector(
     (state: RootState) => state.collab.list // Add collaborations to Redux state
   );
+  const [otherInfo, setOtherInfo] = useState({
+    page: 1,
+    count: 0,
+    totalPages: 1,
+    totalCount: 0,
+    cities:[]
+  })
   const router = useRouter();
 
   // Fetch creators data
@@ -28,24 +35,29 @@ export default function Dashboard() {
     async (
       filters: {
         name?: string;
+        page?: number;
         email?: string;
         budget?: string;
         city?: string;
         createdAt?: string;
+        profileFilter?: string
       } = {}
     ) => {
       try {
         // Build query string from filters
         const params = new URLSearchParams();
         if (filters.name) params.append("name", filters.name);
+        if (filters.page !== undefined) params.append("page", String(filters.page));
         if (filters.email) params.append("email", filters.email);
         if (filters.budget) params.append("budget", filters.budget);
         if (filters.city) params.append("city", filters.city);
         if (filters.createdAt) params.append("createdAt", filters.createdAt);
+        if (filters.profileFilter) params.append("profileFilter", filters.profileFilter);
 
         const queryString = params.toString() ? `?${params.toString()}` : "";
 
         const res = await api.get(`/admin/get-creators${queryString}`);
+        
         const formattedData = res.data.data?.map((creator: any) => ({
           id: creator._id,
           name: creator.fullName,
@@ -57,6 +69,17 @@ export default function Dashboard() {
           requestToDeleteAccount: creator.requestToDeleteAccount ? "Yes" : "No",
           profile: creator.profile,
         }));
+        const page = res.data.page || 1; // Get current page from response
+        const count = res.data.count || 1; // Get current page from response
+        const totalPages = res.data.totalPages || 1; // Get current page from response
+        const totalCount = res.data.totalCount || 1; // Get current page from response
+        setOtherInfo({
+          page,
+          count,
+          totalPages,
+          totalCount,
+          cities: res.data.cities || [], // Assuming cities are returned in the response
+        })
         dispatch(setCreators(formattedData));
       } catch (err) {
         console.error("Error fetching creators:", err);
@@ -79,6 +102,7 @@ export default function Dashboard() {
 
       const queryString = params.toString() ? `?${params.toString()}` : "";
       const res = await api.get(`/admin/get-brands` + queryString); // Use the query string to filter brands
+   
       const formattedData = res.data.data?.map((brand: any) => ({
         id: brand._id,
         name: brand.fullName,
@@ -172,7 +196,7 @@ export default function Dashboard() {
                   </h2>
                   <div className="overflow-x-auto overflow-y-hidden">
                     {activeTab === "creators" && (
-                      <DataTable type="creators" data={creators} fetchCreatorsData={fetchCreatorsData} />
+                      <DataTable type="creators" data={creators} fetchCreatorsData={fetchCreatorsData} otherInfo={otherInfo} />
                     )}
                     {activeTab === "brands" && (
                       <DataTable type="brands" data={brands} fetchBrandsData={fetchBrandsData} />

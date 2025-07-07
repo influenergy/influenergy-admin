@@ -42,7 +42,6 @@ export default function Login() {
           email: data.data.companyEmail,
         })
       );
-      console.log("Login response:", data);
       alert("Login successful!");
       router.push("/dashboard");
       
