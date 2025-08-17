@@ -73,8 +73,8 @@ const CampaignModal = ({ campaign, isOpen, onClose }) => {
                   <p className="text-gray-600">
                     {campaign.campaignObjective
                       ? campaign.campaignObjective
-                          .toString()
-                          .replace(/[\[\]"]/g, "")
+                        .toString()
+                        .replace(/[\[\]"]/g, "")
                       : "Awareness  Engagement Sales"}
                   </p>
                 </div>
@@ -102,207 +102,207 @@ const CampaignModal = ({ campaign, isOpen, onClose }) => {
                 <hr />
 
                 {/* Target Group */}
-                <div className="my-3 flex flex-col gap-4">
-                <h4 className="text-lg font-semibold">Campaign Concept</h4>
-                <p className="text-gray-600">
-                  {campaign.campaignConcept || "No campaign concept provided"}
-                </p>
-                <hr />
-              </div>
+                {/* <div className="my-3 flex flex-col gap-4">
+                  <h4 className="text-lg font-semibold">Campaign Concept</h4>
+                  <p className="text-gray-600">
+                    {campaign.campaignConcept || "No campaign concept provided"}
+                  </p>
+                  <hr />
+                </div> */}
 
-              {/* Target Audience */}
+                {/* Target Audience */}
 
-              <div className="my-7">
-                <h4 className="text-2xl font-semibold flex items-center gap-2 mb-4">
-                  Target Audience & Demographics
-                </h4>
+                <div className="my-7">
+                  <h4 className="text-2xl font-semibold flex items-center gap-2 mb-4">
+                    Target Audience & Demographics
+                  </h4>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
-                  <div>
-                    <p className="font-medium ">Target Audience Age</p>
-                    <p className="text-gray-600">
-                      {campaign?.targetAgeGroup && campaign.targetAgeGroup
-                        ? Array.isArray(campaign.targetAgeGroup)
-                          ? (campaign.targetAgeGroup as string[])
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
+                    <div>
+                      <p className="font-medium ">Target Audience Age</p>
+                      <p className="text-gray-600">
+                        {campaign?.targetAgeGroup && campaign.targetAgeGroup
+                          ? Array.isArray(campaign.targetAgeGroup)
+                            ? (campaign.targetAgeGroup as string[])
                               .map((age) =>
                                 age.toString().replace(/[\[\]"]/g, " ")
                               )
                               .join(", ")
-                          : (campaign.targetAgeGroup as string)
+                            : (campaign.targetAgeGroup as string)
                               .toString()
                               .replace(/[\[\]"]/g, " ")
-                        : ""}
-                    </p>
-                  </div>
+                          : ""}
+                      </p>
+                    </div>
 
-                  <div>
-                    <p className="font-medium">Target Audience Gender</p>
-                    <p className="text-gray-600">
-                      {(campaign?.targetGender &&
-                        campaign.targetGender
-                          .toString()
-                          .replace(/[\[\]"]/g, " ")) ||
-                        "Not specified"}
-                    </p>
-                  </div>
+                    <div>
+                      <p className="font-medium">Target Audience Gender</p>
+                      <p className="text-gray-600">
+                        {(campaign?.targetGender &&
+                          campaign.targetGender
+                            .toString()
+                            .replace(/[\[\]"]/g, " ")) ||
+                          "Not specified"}
+                      </p>
+                    </div>
 
-                  <div>
-                    <p className="font-medium"> Target Audience Location</p>
-                    <p className="text-gray-600">
-                      {campaign.targetLocation
-                        ? campaign.targetLocation
+                    <div>
+                      <p className="font-medium"> Target Audience Location</p>
+                      <p className="text-gray-600">
+                        {campaign.targetLocation
+                          ? campaign.targetLocation
                             .map((loc) => loc.replace(/[\[\]"]/g, " "))
                             .join(", ")
-                        : "Not specified"}
-                    </p>
-                  </div>
+                          : "Not specified"}
+                      </p>
+                    </div>
 
-                  <div>
-                    <p className="font-medium"> Target Audience Interests</p>
-                    <p className="text-gray-600">
-                      {campaign.targetInterests
-                        ? campaign.targetInterests
+                    <div>
+                      <p className="font-medium"> Target Audience Interests</p>
+                      <p className="text-gray-600">
+                        {campaign.targetInterests
+                          ? campaign.targetInterests
                             .map((int) => int.replace(/[\[\]"]/g, " "))
                             .join(", ")
-                        : "Not specified"}
-                    </p>
+                          : "Not specified"}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <hr />
+                <hr />
 
                 {/* Content Vibe */}
-               <div className="my-7">
-                <h4 className="text-2xl font-semibold flex items-center gap-2">
-                  What is the Content Vibe?
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                  <div>
-                    <p>Content Type</p>
-                    <p className="text-gray-600">
-                      {campaign.contentType || "Not specified"}
-                    </p>
-                  </div>
-                  <div>
-                    <p>Duration of Video</p>
-                    <p className="text-gray-600">
-                      {campaign.videoDuration || "Not specified"}
-                    </p>
-                  </div>
-                  <div>
-                    <p>Call to Action</p>
-                    <p className="text-gray-600">
-                      {campaign.catchPhrase || "Not specified"}
-                    </p>
-                  </div>
-                  <div>
-                    <p>Key Message & Hashtags</p>
-                    <p className="text-gray-600">
-                      {campaign.keyMessage || "Not specified"}
-                    </p>
-                  </div>
-                  <div>
-                    <p>Tone & Style</p>
-                    <p className="text-gray-600">
-                      {campaign.toneStyle || "Not specified"}
-                    </p>
+                <div className="my-7">
+                  <h4 className="text-2xl font-semibold flex items-center gap-2">
+                    What is the Content Vibe?
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <p>Content Type</p>
+                      <p className="text-gray-600">
+                        {campaign.contentType || "Not specified"}
+                      </p>
+                    </div>
+                    <div>
+                      <p>Duration of Video</p>
+                      <p className="text-gray-600">
+                        {campaign.videoDuration || "Not specified"}
+                      </p>
+                    </div>
+                    <div>
+                      <p>Call to Action</p>
+                      <p className="text-gray-600">
+                        {campaign.catchPhrase || "Not specified"}
+                      </p>
+                    </div>
+                    <div>
+                      <p>Key Message & Hashtags</p>
+                      <p className="text-gray-600">
+                        {campaign.keyMessage || "Not specified"}
+                      </p>
+                    </div>
+                    <div>
+                      <p>Tone & Style</p>
+                      <p className="text-gray-600">
+                        {campaign.toneStyle || "Not specified"}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Ideal Creator Checklist */}
-              <div className="my-7">
-                <h4 className="text-2xl font-semibold flex items-center gap-2">
-                  Ideal Creator Checklist
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                  <div>
-                    <p>Preferred Creator Niche</p>
-                    <p className="text-gray-600">
-                      {campaign.preferredCreatorNiche
-                        ? campaign.preferredCreatorNiche
+                {/* Ideal Creator Checklist */}
+                <div className="my-7">
+                  <h4 className="text-2xl font-semibold flex items-center gap-2">
+                    Ideal Creator Checklist
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <p>Preferred Creator Niche</p>
+                      <p className="text-gray-600">
+                        {campaign.preferredCreatorNiche
+                          ? campaign.preferredCreatorNiche
                             .map((niche) => niche.replace(/[\[\]"]/g, " "))
                             .join(", ")
-                        : "Not specified"}
-                    </p>
-                  </div>
-                  <div>
-                    <p>Preferred Creator Demographics</p>
-                    <p className="text-gray-600">
-                      {campaign.preferredCreatorDemographics || "Not specified"}
-                    </p>
-                  </div>
-                  <div>
-                    <p>Preferred Social Media</p>
-                    <p className="text-gray-600">
-                      {/* {campaign.socialMediaPlatform || "Not specified"} */}
-                      {campaign?.socialMediaPlatform &&
-                      campaign.socialMediaPlatform
-                        ? Array.isArray(campaign.socialMediaPlatform)
-                          ? (campaign.socialMediaPlatform as string[])
+                          : "Not specified"}
+                      </p>
+                    </div>
+                    <div>
+                      <p>Preferred Creator Demographics</p>
+                      <p className="text-gray-600">
+                        {campaign.preferredCreatorDemographics || "Not specified"}
+                      </p>
+                    </div>
+                    <div>
+                      <p>Preferred Social Media</p>
+                      <p className="text-gray-600">
+                        {/* {campaign.socialMediaPlatform || "Not specified"} */}
+                        {campaign?.socialMediaPlatform &&
+                          campaign.socialMediaPlatform
+                          ? Array.isArray(campaign.socialMediaPlatform)
+                            ? (campaign.socialMediaPlatform as string[])
                               .map((age) =>
                                 age.toString().replace(/[\[\]"]/g, " ")
                               )
                               .join(", ")
-                          : (campaign.socialMediaPlatform as string)
+                            : (campaign.socialMediaPlatform as string)
                               .toString()
                               .replace(/[\[\]"]/g, " ")
-                        : ""}
-                    </p>
+                          : ""}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Compensation & Deliverables */}
-              <div className="my-7">
-                <h4 className="text-2xl font-semibold flex items-center gap-2">
-                  Compensation & Deliverables
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                  <div>
-                    <p className="text-lg">No. Of Days for Delivery</p>
-                    <p className="text-gray-600">
-                      {campaign.noOfDaysForDelivery || "Not specified"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-lg">Expected Deliverables</p>
-                    <p className="text-gray-600">
-                      {campaign.expectedDeliverables || "Not specified"}
-                    </p>
-                  </div>
+                {/* Compensation & Deliverables */}
+                <div className="my-7">
+                  <h4 className="text-2xl font-semibold flex items-center gap-2">
+                    Compensation & Deliverables
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <p className="text-lg">No. Of Days for Delivery</p>
+                      <p className="text-gray-600">
+                        {campaign.noOfDaysForDelivery || "Not specified"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-lg">Expected Deliverables</p>
+                      <p className="text-gray-600">
+                        {campaign.expectedDeliverables || "Not specified"}
+                      </p>
+                    </div>
 
-                  <div>
-                    <p className="text-lg">Required Documents</p>
-                    <p className="text-gray-600">
-                      {campaign.campaignPdf ? (
-                        <Link
-                          href={campaign.campaignPdf || "#"}
-                          target="_blank"
-                          className="underline italic"
-                        >
-                          Link
-                        </Link>
-                      ) : (
-                        'Not specified'
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-lg">Budget</p>
-                    <p className="text-gray-600">
-                      {campaign?.amount ? `$ ${campaign.amount}` : "Not specified"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-lg">Additional Information</p>
-                    <p className="text-gray-600">
-                      {campaign.additionalInstructions || "Not specified"}
-                    </p>
+                    <div>
+                      <p className="text-lg">Required Documents</p>
+                      <p className="text-gray-600">
+                        {campaign.campaignPdf ? (
+                          <Link
+                            href={campaign.campaignPdf || "#"}
+                            target="_blank"
+                            className="underline italic"
+                          >
+                            Link
+                          </Link>
+                        ) : (
+                          'Not specified'
+                        )}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-lg">Budget</p>
+                      <p className="text-gray-600">
+                        {campaign?.amount ? `$ ${campaign.amount}` : "Not specified"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-lg">Additional Information</p>
+                      <p className="text-gray-600">
+                        {campaign.additionalInstructions || "Not specified"}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
               </div>
             </div>
           </div>

@@ -60,6 +60,8 @@ const DataTable = ({
   fetchBrandsData,
   fetchCollaborationsData,
 }: DataTableProps) => {
+
+
   const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
   const [selectedVideos, setSelectedVideos] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -686,6 +688,7 @@ const DataTable = ({
       fetchCollaborationsData?.();
     }
   }
+
   return (
     <div className="w-full">
       {/* Filter Section for Creators */}
@@ -868,6 +871,7 @@ const DataTable = ({
           onClick={() => {
             if (otherInfo?.page > 1) {
               setCurrentPage(otherInfo?.page - 1)
+              handlePageChange(otherInfo?.page - 1)
             }
           }}
           disabled={otherInfo?.page === 1}
