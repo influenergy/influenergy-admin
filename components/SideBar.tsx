@@ -37,7 +37,6 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      console.log("Logging out...");
       document.documentElement.classList.remove("dark");
       await api.post("/logout",{
         userType: "admin"

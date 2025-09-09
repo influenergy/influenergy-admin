@@ -208,7 +208,7 @@ const DataTable = ({
 
       if (res.status === 200) {
         alert(res.data.message || "✅ Verification email sent successfully!");
-        console.log("✅ Account verification email sent:", res.data);
+        console.log("✅ Account verification email sent:");
       } else {
         alert(res.data.message || "⚠️ Unexpected response");
         console.warn("⚠️ Unexpected response status:", res.status);
