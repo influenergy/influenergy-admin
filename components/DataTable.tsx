@@ -287,6 +287,7 @@ const DataTable = ({
                   onClick={() => {
                     openImageModal(row.original.profileIcon);
                   }}
+                  unoptimized
                 />
               </div>
             ) : null,
