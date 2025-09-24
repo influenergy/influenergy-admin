@@ -1,3 +1,5 @@
+"use client";
+
 import { useTransition, useEffect, useState } from "react";
 import {
   FaUsers,
@@ -5,7 +7,7 @@ import {
   FaSignOutAlt,
   FaBars,
   FaTimes,
-  FaHandshake, // New icon for collaborations
+  FaHandshake,
 } from "react-icons/fa";
 import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
@@ -14,6 +16,7 @@ import { setActiveTab } from "../store/slices/tabSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import { logout } from "../store/slices/authSlice";
 import { api } from "../utils/apiConfig";
+// removed toast; using window.alert instead
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -21,12 +24,16 @@ const Sidebar = () => {
   const currentTab = searchParams.get("tab") || "creators";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const activeTab = useSelector((state: any) => state.tab.activeTab);
   const router = useRouter();
 
+
   useEffect(() => {
     startTransition(() => {
-      dispatch(setActiveTab(currentTab as "creators" | "brands" | "collaborations"));
+      dispatch(
+        setActiveTab(currentTab as "creators" | "brands" | "collaborations")
+      );
     });
   }, [currentTab, dispatch]);
 
@@ -36,15 +43,32 @@ const Sidebar = () => {
   }, [currentTab]);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return; // prevent double click
+    setIsLoggingOut(true);
+
     try {
       document.documentElement.classList.remove("dark");
-      await api.post("/logout",{
-        userType: "admin"
-      });
+
+      await api.post("/logout", { userType: "admin" });
+
+      console.log("✅ Logout API success");
+    } catch (error: any) {
+      console.error("❌ Logout Error:", error);
+
+      // Extract proper message if needed
+      const message =
+        error?.response?.data?.message || error?.message || "Logout failed";
+
+      // Show alert instead of toast
+      window.alert(`Logout Error: ${message}`);
+    } finally {
+      // Clear Redux + cookies
       dispatch(logout());
-      router.push("/login");
-    } catch (error) {
-      console.error("Logout Error:", error.message);
+
+      // Always redirect to login
+      router.replace("/login");
+
+      setIsLoggingOut(false);
     }
   };
 
@@ -57,7 +81,7 @@ const Sidebar = () => {
     {
       name: "Collaborations",
       href: "/dashboard?tab=collaborations",
-      icon: <FaHandshake className="text-xl" />, // Collaboration icon
+      icon: <FaHandshake className="text-xl" />,
     },
     {
       name: "Brands",
@@ -84,11 +108,10 @@ const Sidebar = () => {
             >
               <Link
                 href={href}
-                className={`flex items-center space-x-3 px-4 md:px-5 py-2 md:py-3 rounded-lg text-base md:text-lg font-medium transition-all ${
-                  currentTab === name.toLowerCase()
-                    ? "bg-blue-500 text-white shadow-lg"
-                    : "hover:bg-gray-800 hover:text-blue-400"
-                }`}
+                className={`flex items-center space-x-3 px-4 md:px-5 py-2 md:py-3 rounded-lg text-base md:text-lg font-medium transition-all ${currentTab === name.toLowerCase()
+                  ? "bg-blue-500 text-white shadow-lg"
+                  : "hover:bg-gray-800 hover:text-blue-400"
+                  }`}
               >
                 {icon} <span>{name}</span>
                 {isPending && currentTab === name.toLowerCase() && (
@@ -103,10 +126,12 @@ const Sidebar = () => {
       <div className="p-4 md:p-6">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center space-x-2 px-3 md:px-4 py-2 md:py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all shadow-md cursor-pointer"
+          disabled={isLoggingOut}
+          className={`w-full flex items-center justify-center space-x-2 px-3 md:px-4 py-2 md:py-3 ${isLoggingOut ? "bg-gray-500" : "bg-red-600 hover:bg-red-700"
+            } text-white font-medium rounded-lg transition-all shadow-md cursor-pointer`}
         >
           <FaSignOutAlt className="text-lg" />
-          <span>Logout</span>
+          <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
         </button>
       </div>
     </>
