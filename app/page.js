@@ -69,7 +69,7 @@ export default function Home() {
           transition={{ duration: 0.8, delay: 0.6 }}
         >
           <a href="/terms" className="hover:underline">Terms & Conditions</a>
-          <p className="mt-2">Copyright © 2025 InfluEnergy</p>
+          <p className="mt-2">Copyright © 2026 InfluEnergy</p>
         </motion.footer>
       </div>
     </div>
