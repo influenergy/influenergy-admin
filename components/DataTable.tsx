@@ -168,6 +168,7 @@ const DataTable = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownOpen]);
+  
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleDelete = async (id: string, userType: string) => {
@@ -268,6 +269,7 @@ const DataTable = ({
   );
 
   const hasPaymentStatus = data.some((item) => item.paymentStatus);
+  
 
   const columns: ColumnDef<any>[] = useMemo(() => {
     if (type === "creators") {
@@ -514,7 +516,7 @@ const DataTable = ({
           ),
         },
       ];
-    } else {
+    } else {      
       return [
         {
           accessorKey: "id",
@@ -596,7 +598,7 @@ const DataTable = ({
 
                 return (
                   <div className=" items-center gap-2">
-                    {status !== "Under Process" ? (
+                    {status !== "Pending" ? (
                       <span
                         className={`px-2 py-1 rounded-full text-xs ${statusClasses[status]}`}
                       >
@@ -611,14 +613,14 @@ const DataTable = ({
                           )
                         }
                         disabled={loadingPaymentId === row.original.id}
-                        className={`bg-blue-500 text-white px-3 py-1 rounded text-xs transition cursor-pointer ${loadingPaymentId === row.original.id
+                        className={`bg-blue-500 text-white px-2 py-1 rounded text-xs transition cursor-pointer ${loadingPaymentId === row.original.id
                           ? "opacity-50 cursor-not-allowed"
                           : "hover:bg-blue-600"
                           }`}
                       >
                         {loadingPaymentId === row.original.id
                           ? "Processing..."
-                          : `Make Payment $${row.original.amount}`}
+                          : `Make Payment ${row.original.campaign.budgetForCampaign}`}
                       </button>
                     )}
                   </div>
